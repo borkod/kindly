@@ -62,19 +62,23 @@ to quickly create a Cobra application.`,
 			fmt.Println("Installing files...")
 		}
 
+		// Create a temporary directory where files will be downloaded
 		tmpDir, err := ioutil.TempDir("", "kindly_")
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
 		}
 
+		// Clean up temporary directory
 		defer os.RemoveAll(tmpDir)
 
+		// Iterate over all packages provided as command arguments
 		for _, n := range args {
 			var tmpFile string
 			var err error
 			var yamlConfig YamlConfig
 
+			// Pull out package version if provided
 			nVer := strings.SplitN(n, "@", 2)
 
 			dl := dlInfo{nVer[0], "", "", "", ""}
@@ -86,18 +90,21 @@ to quickly create a Cobra application.`,
 					continue
 				}
 			}
-			// GetYaml is simulating downloading the files.
+
+			// Download package yaml spec and initialize yamlConfig struct
 			if yamlConfig, err = GetYaml(dl.Name); err != nil {
 				// TODO Write error message
 				fmt.Println("ERROR")
 				continue
 			}
 
+			// Check if package is available
 			if !(len(yamlConfig.Spec.Name) > 0) {
 				fmt.Println("Unavailable Package: ", dl.Name)
 				continue
 			}
 
+			// Check if requested version is higher value than the available version in the package
 			if len(dl.Version) > 0 {
 				if semver.Compare(dl.Version, yamlConfig.Spec.Version) == 1 {
 					fmt.Println("Version requested: ", dl.Version, "Latest version: ", yamlConfig.Spec.Version)
@@ -105,23 +112,28 @@ to quickly create a Cobra application.`,
 				}
 			}
 
+			// If version was not provided in the argument, set it to version in spec file
 			if !(len(dl.Version) > 0) {
 				dl.Version = yamlConfig.Spec.Version
 			}
 
 			// processFile Downloads file from url, checks SHA value, and saves it to tmpDir
 			dl.osArch = runtime.GOOS + "_" + runtime.GOARCH
-			//dl.osArch = "linux_amd64" // TODO Remove this line; for testing
 
+			// Check if OS architecture is available
 			if _, ok := yamlConfig.Spec.Assets[dl.osArch]; !ok {
 				fmt.Println("Unavailable OS Architecture: ", dl.osArch)
 				continue
 			}
 
+			// Applies Version values to the URL template
 			if dl.URL, dl.URLSHA, err = executeURL(dl, yamlConfig); err != nil {
 				continue
 			}
 
+			// Downloads package file and package SHA file.
+			// Calculates package SHA value
+			// Compares package SHA value to SHA value in the SHA file
 			if tmpFile, err = processFile(dl, tmpDir); err != nil {
 				// TODO Write error message
 				fmt.Println("ERROR")
@@ -164,6 +176,7 @@ to quickly create a Cobra application.`,
 				}
 			}
 
+			// Copy all extracted completion files from tmpDir into OutCompletionDir
 			for _, n = range yamlConfig.Spec.Completion[Completion] {
 				if err = copyFile(OutCompletionDir, tmpDir, n); err != nil {
 					// TODO Write error message
@@ -172,6 +185,7 @@ to quickly create a Cobra application.`,
 				}
 			}
 
+			// Copy all extracted man pages files from tmpDir into OutManDir
 			for _, n = range yamlConfig.Spec.Man {
 				if err = copyFile(OutManDir, tmpDir, n); err != nil {
 					// TODO Write error message
@@ -220,17 +234,6 @@ func GetYaml(arg string) (YamlConfig, error) {
 
 	yaml.Unmarshal(buf.Bytes(), &yamlConfig)
 
-	/*
-		file := ExpandPath("C:/Users/borko/.kindly/tmp-input/" + arg + ".yml")
-
-		yamlFile, err := ioutil.ReadFile(file)
-		if err != nil {
-			fmt.Printf("Error reading YAML file: %s\n", arg)
-			return yamlConfig, err
-		}
-
-		err = yaml.Unmarshal(yamlFile, &yamlConfig)
-	*/
 	if err != nil {
 		fmt.Printf("Error parsing YAML file: %s\n", arg)
 		return yamlConfig, err
@@ -239,6 +242,9 @@ func GetYaml(arg string) (YamlConfig, error) {
 	return yamlConfig, nil
 }
 
+// Downloads package file and package SHA file.
+// Calculates package SHA value
+// Compares package SHA value to SHA value in the SHA file
 func processFile(dl dlInfo, tmpDir string) (string, error) {
 
 	// Get the data
@@ -313,8 +319,9 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 			return "", err
 		}
 	} else if Verbose {
-		fmt.Println("NO SHAFILE PROVIDED. SKIPPING SHA VALUE CHECK")
+		fmt.Println("NO SHA FILE PROVIDED. SKIPPING SHA VALUE CHECK")
 	}
+
 	// Create the output file in temporary
 	urlPath := strings.Split(dl.URL, "/")
 	filepath := filepath.Join(tmpDir, urlPath[len(urlPath)-1])
@@ -334,6 +341,7 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 	return filepath, err
 }
 
+// Applies OS and Architecture values to the binary file names template
 func executeBin(n string) (string, error) {
 	binT, err := template.New("bin").Parse(n)
 
@@ -364,6 +372,7 @@ func executeBin(n string) (string, error) {
 	return newStr, nil
 }
 
+// Applies Version values to the URL template
 func executeURL(dl dlInfo, yc YamlConfig) (string, string, error) {
 	urlT, err := template.New("url").Parse(yc.Spec.Assets[dl.osArch].URL)
 
