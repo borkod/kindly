@@ -44,10 +44,12 @@ to quickly create a Cobra application.`,
 			fmt.Println("Checking packages...")
 		}
 
+		// Iterate over all packages provided as command arguments
 		for _, n := range args {
 			var err error
 			var yamlConfig YamlConfig
 
+			// Pull out package version if provided
 			nVer := strings.SplitN(n, "@", 2)
 
 			dl := dlInfo{nVer[0], "", "", "", ""}
@@ -60,18 +62,20 @@ to quickly create a Cobra application.`,
 				}
 			}
 
-			// GetYaml is simulating downloading the files.
+			// Download package yaml spec and initialize yamlConfig struct
 			if yamlConfig, err = GetYaml(dl.Name); err != nil {
 				// TODO Write error message
 				fmt.Println("ERROR")
 				continue
 			}
 
+			// Check if package is available
 			if !(len(yamlConfig.Spec.Name) > 0) {
 				fmt.Println("Unavailable Package: ", dl.Name)
 				continue
 			}
 
+			// Check if requested version is higher value than the available version in the package
 			if len(dl.Version) > 0 {
 				if semver.Compare(dl.Version, yamlConfig.Spec.Version) == 1 {
 					fmt.Println("Version requested: ", dl.Version, "Latest version: ", yamlConfig.Spec.Version)
@@ -79,21 +83,26 @@ to quickly create a Cobra application.`,
 				}
 			}
 
+			// If version was not provided in the argument, set it to version in spec file
 			if !(len(dl.Version) > 0) {
 				dl.Version = yamlConfig.Spec.Version
 			}
 
 			// processFile Downloads file from url, checks SHA value, and saves it to tmpDir
 			dl.osArch = runtime.GOOS + "_" + runtime.GOARCH
-			dl.osArch = "linux_amd64" // TODO Remove this line; for testing
 
+			// Check if OS architecture is available
 			if _, ok := yamlConfig.Spec.Assets[dl.osArch]; !ok {
 				fmt.Println("Unavailable OS Architecture: ", dl.osArch)
 				continue
 			}
 
-			fmt.Println("Package: ", dl.Name, "\t\tVersion: ", dl.Version)
+			// If no YAML output requested, just print one line. Otherwise print YAML.
+			if !viper.GetBool("output") {
+				fmt.Println("Package: ", dl.Name, "\t\tVersion: ", dl.Version)
+			}
 
+			// If YAML output requested, print complete spec YAML
 			if viper.GetBool("output") {
 				d, err := yaml.Marshal(&yamlConfig)
 				if err != nil {
