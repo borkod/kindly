@@ -1,23 +1,17 @@
 /*
 Copyright © 2021 Borko Djurkovic <borkod@gmail.com>
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
+    http://www.apache.org/licenses/LICENSE-2.0
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 // Package cmd is for implementing commands
@@ -36,22 +30,22 @@ import (
 
 var cfgFile string
 
-// Verbose TODO SHould this be declared here?
+// Verbose stores verbose flag value TODO SHould this be declared here?
 var Verbose bool
 
-// OutBinDir TODO SHould this be declared here?
+// OutBinDir stores the configuration of the directory where binary files should be saved
 var OutBinDir string
 
-// OutCompletionDir TODO SHould this be declared here?
+// OutCompletionDir stores the configuration of the directory where shell completion files should be saved
 var OutCompletionDir string
 
-// OutCompletionDir TODO SHould this be declared here?
+// OutManDir stores the configuration of the directory where man pages files should be saved
 var OutManDir string
 
-// UniqueDir specifies if files should be saved into unique dir
+// UniqueDir specifies if the binary files should be saved into their own unique dir
 var UniqueDir bool
 
-// Completion specifies completion shell
+// Completion specifies completion shell configuration
 var Completion string
 
 // rootCmd represents the base command when called without any subcommands
@@ -82,9 +76,7 @@ func Execute() {
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
+	// Cobra persistent flags are defined here; global for the application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kindly/.kindly.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output")
@@ -98,9 +90,6 @@ func init() {
 	viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
 	rootCmd.PersistentFlags().StringVar(&Completion, "completion", "bash", "Completion shell setting")
 	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -112,6 +101,7 @@ func initConfig() {
 		os.Exit(1)
 	}
 
+	// Initialize default values
 	OutBinDir = filepath.Join(home, ".kindly", "bin")
 	OutCompletionDir = filepath.Join(home, ".kindly", "completion")
 	OutManDir = filepath.Join(home, ".kindly", "man")
@@ -133,6 +123,7 @@ func initConfig() {
 		fmt.Println("Using config file:", viper.ConfigFileUsed())
 	}
 
+	// Update variables based on any flags or environment variables set by the user
 	OutBinDir = viper.GetString("OutBinDir")
 	UniqueDir = viper.GetBool("unique-directory")
 	OutManDir = viper.GetString("OutManDir")
