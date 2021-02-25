@@ -32,7 +32,7 @@ import (
 // decompress decompresses a file
 func decompress(dst string, path string) error {
 
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("Decompressing file:\t\t", path)
 	}
 
@@ -93,7 +93,7 @@ func decompress(dst string, path string) error {
 				return err
 			}
 
-			if Verbose {
+			if cfg.Verbose {
 				fmt.Println("Writing file:\t\t\t", target)
 			}
 
@@ -112,7 +112,7 @@ func decompress(dst string, path string) error {
 // copyFile copies file to dst from src
 func copyFile(dst string, src string, binName string) error {
 
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("Copying file:\t\t", binName)
 	}
 
@@ -126,7 +126,7 @@ func copyFile(dst string, src string, binName string) error {
 			defer sourceFile.Close()
 
 			// Create the output directory
-			if UniqueDir {
+			if cfg.UniqueDir {
 				dirPath := filepath.Join(dst, info.Name())
 				if f, err := os.Stat(dirPath); os.IsNotExist(err) || !f.IsDir() {
 					os.Mkdir(dirPath, os.ModePerm)
@@ -157,7 +157,7 @@ func copyFile(dst string, src string, binName string) error {
 // Unzip will decompress a zip archive, moving all files and folders within the zip file (parameter 1) to an output directory (parameter 2)
 func Unzip(src string, dest string) ([]string, error) {
 
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("Unzipping file:\t\t", src)
 	}
 	var filenames []string

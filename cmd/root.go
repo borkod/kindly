@@ -26,7 +26,19 @@ import (
 
 	homedir "github.com/mitchellh/go-homedir"
 	"github.com/spf13/viper"
+
+	"github.com/borkod/kindly/config"
 )
+
+// Config struct for kindly
+/*type Config struct {
+	Verbose          bool
+	OutBinDir        string
+	OutCompletionDir string
+	OutManDir        string
+	UniqueDir        bool
+	Completion       string
+}*/
 
 var cfgFile string
 
@@ -47,6 +59,8 @@ var UniqueDir bool
 
 // Completion specifies completion shell configuration
 var Completion string
+
+var cfg config.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -79,16 +93,16 @@ func init() {
 	// Cobra persistent flags are defined here; global for the application.
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kindly/.kindly.yaml)")
-	rootCmd.PersistentFlags().BoolVarP(&Verbose, "verbose", "v", false, "Verbose output")
-	rootCmd.PersistentFlags().StringVar(&OutBinDir, "OutBinDir", "", "Default binary file output directory (default is $HOME/.local/bin/)")
+	rootCmd.PersistentFlags().BoolVarP(&cfg.Verbose, "verbose", "v", false, "Verbose output")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutBinDir, "OutBinDir", "", "Default binary file output directory (default is $HOME/.local/bin/)")
 	viper.BindPFlag("OutBinDir", rootCmd.PersistentFlags().Lookup("OutBinDir"))
-	rootCmd.PersistentFlags().StringVar(&OutCompletionDir, "OutCompletionDir", "", "Default Completions file output directory (default is $HOME/.local/completion/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutCompletionDir, "OutCompletionDir", "", "Default Completions file output directory (default is $HOME/.local/completion/)")
 	viper.BindPFlag("OutCompletionDir", rootCmd.PersistentFlags().Lookup("OutCompletionDir"))
-	rootCmd.PersistentFlags().StringVar(&OutManDir, "OutManDir", "", "Default Man Pages output directory (default is $HOME/.local/man/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutManDir, "OutManDir", "", "Default Man Pages output directory (default is $HOME/.local/man/)")
 	viper.BindPFlag("OutManDir", rootCmd.PersistentFlags().Lookup("OutManDir"))
-	rootCmd.PersistentFlags().BoolVarP(&UniqueDir, "unique-directory", "", false, "write files into unique directory (default is false)")
+	rootCmd.PersistentFlags().BoolVarP(&cfg.UniqueDir, "unique-directory", "", false, "write files into unique directory (default is false)")
 	viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
-	rootCmd.PersistentFlags().StringVar(&Completion, "completion", "bash", "Completion shell setting")
+	rootCmd.PersistentFlags().StringVar(&cfg.Completion, "completion", "bash", "Completion shell setting")
 	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
 }
 
@@ -102,9 +116,9 @@ func initConfig() {
 	}
 
 	// Initialize default values
-	OutBinDir = filepath.Join(home, ".kindly", "bin")
-	OutCompletionDir = filepath.Join(home, ".kindly", "completion")
-	OutManDir = filepath.Join(home, ".kindly", "man")
+	cfg.OutBinDir = filepath.Join(home, ".kindly", "bin")
+	cfg.OutCompletionDir = filepath.Join(home, ".kindly", "completion")
+	cfg.OutManDir = filepath.Join(home, ".kindly", "man")
 
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -124,7 +138,7 @@ func initConfig() {
 	}
 
 	// Update variables based on any flags or environment variables set by the user
-	OutBinDir = viper.GetString("OutBinDir")
-	UniqueDir = viper.GetBool("unique-directory")
-	OutManDir = viper.GetString("OutManDir")
+	cfg.OutBinDir = viper.GetString("OutBinDir")
+	cfg.UniqueDir = viper.GetBool("unique-directory")
+	cfg.OutManDir = viper.GetString("OutManDir")
 }

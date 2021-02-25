@@ -58,7 +58,7 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		if Verbose {
+		if cfg.Verbose {
 			fmt.Println("Installing files...")
 		}
 
@@ -169,7 +169,7 @@ to quickly create a Cobra application.`,
 				if runtime.GOOS == "windows" {
 					n = n + ".exe"
 				}
-				if err = copyFile(OutBinDir, tmpDir, n); err != nil {
+				if err = copyFile(cfg.OutBinDir, tmpDir, n); err != nil {
 					// TODO Write error message
 					fmt.Println("ERROR")
 					fmt.Println(err)
@@ -177,8 +177,8 @@ to quickly create a Cobra application.`,
 			}
 
 			// Copy all extracted completion files from tmpDir into OutCompletionDir
-			for _, n = range yamlConfig.Spec.Completion[Completion] {
-				if err = copyFile(OutCompletionDir, tmpDir, n); err != nil {
+			for _, n = range yamlConfig.Spec.Completion[cfg.Completion] {
+				if err = copyFile(cfg.OutCompletionDir, tmpDir, n); err != nil {
 					// TODO Write error message
 					fmt.Println("ERROR")
 					fmt.Println(err)
@@ -187,7 +187,7 @@ to quickly create a Cobra application.`,
 
 			// Copy all extracted man pages files from tmpDir into OutManDir
 			for _, n = range yamlConfig.Spec.Man {
-				if err = copyFile(OutManDir, tmpDir, n); err != nil {
+				if err = copyFile(cfg.OutManDir, tmpDir, n); err != nil {
 					// TODO Write error message
 					fmt.Println("ERROR")
 					fmt.Println(err)
@@ -195,7 +195,7 @@ to quickly create a Cobra application.`,
 			}
 		}
 
-		if Verbose {
+		if cfg.Verbose {
 			fmt.Println("\nInstalling files complete.")
 		}
 
@@ -248,7 +248,7 @@ func GetYaml(arg string) (YamlConfig, error) {
 func processFile(dl dlInfo, tmpDir string) (string, error) {
 
 	// Get the data
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("\nDownloading file:\t\t", dl.URL)
 	}
 
@@ -266,7 +266,7 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 		return "", err
 	}
 
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("Download finished.")
 	}
 
@@ -277,13 +277,13 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 	}
 	sum := hex.EncodeToString(hash.Sum(nil))
 
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("Calculated SHA256 value:\t", sum)
 	}
 
 	// Get the sha file
 	if len(dl.URLSHA) > 1 {
-		if Verbose {
+		if cfg.Verbose {
 			fmt.Println("Downloading SHA256 file:\t", dl.URLSHA)
 		}
 
@@ -309,7 +309,7 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 		}
 
 		// Get the sha file
-		if Verbose {
+		if cfg.Verbose {
 			fmt.Println("SHA256 file hash value:\t\t", newStr)
 		}
 
@@ -318,7 +318,7 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 			fmt.Println("SHA MISMATCH")
 			return "", err
 		}
-	} else if Verbose {
+	} else if cfg.Verbose {
 		fmt.Println("NO SHA FILE PROVIDED. SKIPPING SHA VALUE CHECK")
 	}
 
@@ -326,7 +326,7 @@ func processFile(dl dlInfo, tmpDir string) (string, error) {
 	urlPath := strings.Split(dl.URL, "/")
 	filepath := filepath.Join(tmpDir, urlPath[len(urlPath)-1])
 
-	if Verbose {
+	if cfg.Verbose {
 		fmt.Println("Writing output file:\t\t", filepath)
 	}
 
