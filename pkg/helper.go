@@ -22,28 +22,47 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
 
 // GetYaml downloads the yaml and configures the yamlConfig struct
-func getYaml(arg string) (yamlConfig, error) {
-	var yc yamlConfig
+func getYaml(ctx context.Context, arg string) (yamlConfig, error) {
+	const ConnectMaxWaitTime = 1 * time.Second
+	const RequestMaxWaitTime = 5 * time.Second
 
-	resp, err := http.Get(arg)
+	client := http.Client{
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout: ConnectMaxWaitTime,
+			}).DialContext,
+		},
+	}
+
+	var yc yamlConfig
+	buf := new(bytes.Buffer)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, arg, nil)
+	if err != nil {
+		return yc, err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return yc, err
 	}
 	defer resp.Body.Close()
 
-	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(resp.Body); err != nil {
 		//fmt.Printf("Error downloading file: %s\n", arg)
 		return yc, err

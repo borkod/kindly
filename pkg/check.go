@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/spf13/viper"
@@ -8,7 +9,7 @@ import (
 )
 
 // Check function checks if the packages passed in args are available TODO variadic function, logging interface
-func (k Kindly) Check(args []string) {
+func (k Kindly) Check(ctx context.Context, args []string) {
 	if k.cfg.Verbose {
 		fmt.Println("Checking packages...")
 	}
@@ -18,7 +19,7 @@ func (k Kindly) Check(args []string) {
 		var err error
 		var yc yamlConfig
 
-		if _, yc, err = k.getValidYConfig(n); err != nil {
+		if _, yc, err = k.getValidYConfig(ctx, n); err != nil {
 			fmt.Println(err)
 			continue
 		}

@@ -18,6 +18,8 @@ limitations under the License.
 package cmd
 
 import (
+	"context"
+
 	kindly "github.com/borkod/kindly/pkg"
 	"github.com/spf13/cobra"
 )
@@ -44,7 +46,9 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
 		k.SetConfig(cfg)
-		k.Install(args)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		k.Install(ctx, args)
 	},
 }
 

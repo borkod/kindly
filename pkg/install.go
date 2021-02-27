@@ -3,6 +3,7 @@ package pkg
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
@@ -18,7 +19,7 @@ import (
 )
 
 // Install function implements install command
-func (k Kindly) Install(args []string) {
+func (k Kindly) Install(ctx context.Context, args []string) {
 	if k.cfg.Verbose {
 		fmt.Println("Installing files...")
 	}
@@ -40,7 +41,7 @@ func (k Kindly) Install(args []string) {
 		var yc yamlConfig
 		var dl dlInfo
 
-		if dl, yc, err = k.getValidYConfig(n); err != nil {
+		if dl, yc, err = k.getValidYConfig(ctx, n); err != nil {
 			fmt.Println(err)
 			continue
 		}
@@ -53,7 +54,7 @@ func (k Kindly) Install(args []string) {
 		// Downloads package file and package SHA file.
 		// Calculates package SHA value
 		// Compares package SHA value to SHA value in the SHA file
-		if tmpFile, err = k.processFile(dl, tmpDir); err != nil {
+		if tmpFile, err = k.processFile(ctx, dl, tmpDir); err != nil {
 			// TODO Write error message
 			fmt.Println("ERROR")
 			fmt.Println(err)
@@ -124,7 +125,7 @@ func (k Kindly) Install(args []string) {
 // Downloads package file and package SHA file.
 // Calculates package SHA value
 // Compares package SHA value to SHA value in the SHA file
-func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
+func (k Kindly) processFile(ctx context.Context, dl dlInfo, tmpDir string) (string, error) {
 
 	// Get the data
 	if k.cfg.Verbose {

@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -15,7 +16,7 @@ type dlInfo struct {
 	osArch  string
 }
 
-func (k Kindly) getValidYConfig(n string) (dlInfo, yamlConfig, error) {
+func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, yamlConfig, error) {
 	var err error
 	var yc yamlConfig
 
@@ -32,7 +33,7 @@ func (k Kindly) getValidYConfig(n string) (dlInfo, yamlConfig, error) {
 	}
 
 	// Download package yaml spec and initialize yamlConfig struct
-	if yc, err = getYaml(k.cfg.Source + dl.Name + ".yml"); err != nil {
+	if yc, err = getYaml(ctx, k.cfg.Source+dl.Name+".yml"); err != nil {
 		// TODO Write error message
 		return dl, yc, errors.New("ERROR")
 	}
