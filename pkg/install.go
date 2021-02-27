@@ -39,7 +39,7 @@ func (k Kindly) Install(ctx context.Context, args []string) {
 	for _, n := range args {
 		var tmpFile string
 		var err error
-		var yc yamlConfig
+		var yc KindlyStruct
 		var dl dlInfo
 
 		if dl, yc, err = k.getValidYConfig(ctx, n); err != nil {
@@ -274,7 +274,7 @@ func executeBin(n string, os string, arch string) (string, error) {
 }
 
 // Applies Version values to the URL template
-func executeURL(dl dlInfo, yc yamlConfig) (string, string, error) {
+func executeURL(dl dlInfo, yc KindlyStruct) (string, string, error) {
 	urlT, err := template.New("url").Parse(yc.Spec.Assets[dl.osArch].URL)
 
 	if err != nil {

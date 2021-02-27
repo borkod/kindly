@@ -17,7 +17,7 @@ func (k Kindly) Check(ctx context.Context, args []string) {
 	// Iterate over all packages provided as command arguments
 	for _, n := range args {
 		var err error
-		var yc yamlConfig
+		var yc KindlyStruct
 
 		if _, yc, err = k.getValidYConfig(ctx, n); err != nil {
 			fmt.Println(err)

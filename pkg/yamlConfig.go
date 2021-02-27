@@ -17,8 +17,8 @@ limitations under the License.
 // Package pkg is for implementing commands
 package pkg
 
-// yamlConfig is exported.
-type yamlConfig struct {
+// KindlyStruct is exported.
+type KindlyStruct struct {
 	Spec struct {
 		Name        string `yaml:"name"`
 		Description string `yaml:"description"`

@@ -36,8 +36,8 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// GetYaml downloads the yaml and configures the yamlConfig struct
-func getYaml(ctx context.Context, arg string) (yamlConfig, error) {
+// GetYaml downloads the yaml and configures the KindlyStruct struct
+func getYaml(ctx context.Context, arg string) (KindlyStruct, error) {
 	const ConnectMaxWaitTime = 1 * time.Second
 	const RequestMaxWaitTime = 5 * time.Second
 
@@ -49,7 +49,7 @@ func getYaml(ctx context.Context, arg string) (yamlConfig, error) {
 		},
 	}
 
-	var yc yamlConfig
+	var yc KindlyStruct
 	buf := new(bytes.Buffer)
 
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, arg, nil)
