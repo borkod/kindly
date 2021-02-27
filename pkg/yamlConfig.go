@@ -14,11 +14,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package cmd is for implementing commands
-package cmd
+// Package pkg is for implementing commands
+package pkg
 
-// YamlConfig is exported.
-type YamlConfig struct {
+// yamlConfig is exported.
+type yamlConfig struct {
 	Spec struct {
 		Name        string `yaml:"name"`
 		Description string `yaml:"description"`

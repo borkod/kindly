@@ -14,27 +14,57 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package cmd is for implementing commands
-package cmd
+// Package pkg is for implementing commands
+package pkg
 
 import (
 	"archive/tar"
 	"archive/zip"
+	"bytes"
 	"compress/gzip"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+
+	"gopkg.in/yaml.v2"
 )
+
+// GetYaml downloads the yaml and configures the yamlConfig struct
+func getYaml(arg string) (yamlConfig, error) {
+	var yc yamlConfig
+
+	resp, err := http.Get(arg)
+	if err != nil {
+		return yc, err
+	}
+	defer resp.Body.Close()
+
+	buf := new(bytes.Buffer)
+	if _, err = buf.ReadFrom(resp.Body); err != nil {
+		//fmt.Printf("Error downloading file: %s\n", arg)
+		return yc, err
+	}
+
+	yaml.Unmarshal(buf.Bytes(), &yc)
+
+	if err != nil {
+		//fmt.Printf("Error parsing YAML file: %s\n", arg)
+		return yc, err
+	}
+
+	return yc, nil
+}
 
 // decompress decompresses a file
 func decompress(dst string, path string) error {
 
-	if Verbose {
-		fmt.Println("Decompressing file:\t\t", path)
-	}
+	//if cfg.Verbose {
+	//	fmt.Println("Decompressing file:\t\t", path)
+	//}
 
 	file, err := os.Open(path)
 	if err != nil {
@@ -93,9 +123,9 @@ func decompress(dst string, path string) error {
 				return err
 			}
 
-			if Verbose {
-				fmt.Println("Writing file:\t\t\t", target)
-			}
+			//if cfg.Verbose {
+			//	fmt.Println("Writing file:\t\t\t", target)
+			//}
 
 			// copy over contents
 			if _, err := io.Copy(f, tr); err != nil {
@@ -112,9 +142,9 @@ func decompress(dst string, path string) error {
 // copyFile copies file to dst from src
 func copyFile(dst string, src string, binName string) error {
 
-	if Verbose {
-		fmt.Println("Copying file:\t\t", binName)
-	}
+	//if cfg.Verbose {
+	//	fmt.Println("Copying file:\t\t", binName)
+	//}
 
 	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if info.Name() == binName && !info.IsDir() {
@@ -126,13 +156,13 @@ func copyFile(dst string, src string, binName string) error {
 			defer sourceFile.Close()
 
 			// Create the output directory
-			if UniqueDir {
-				dirPath := filepath.Join(dst, info.Name())
-				if f, err := os.Stat(dirPath); os.IsNotExist(err) || !f.IsDir() {
-					os.Mkdir(dirPath, os.ModePerm)
-				}
-				dst = dirPath
-			}
+			//if cfg.UniqueDir {
+			//	dirPath := filepath.Join(dst, info.Name())
+			//	if f, err := os.Stat(dirPath); os.IsNotExist(err) || !f.IsDir() {
+			//		os.Mkdir(dirPath, os.ModePerm)
+			//	}
+			//	dst = dirPath
+			//}
 
 			newFile, err := os.Create(filepath.Join(dst, info.Name()))
 			if err != nil {
@@ -157,9 +187,9 @@ func copyFile(dst string, src string, binName string) error {
 // Unzip will decompress a zip archive, moving all files and folders within the zip file (parameter 1) to an output directory (parameter 2)
 func Unzip(src string, dest string) ([]string, error) {
 
-	if Verbose {
-		fmt.Println("Unzipping file:\t\t", src)
-	}
+	//if cfg.Verbose {
+	//	fmt.Println("Unzipping file:\t\t", src)
+	//}
 	var filenames []string
 
 	r, err := zip.OpenReader(src)
