@@ -184,7 +184,12 @@ func (k Kindly) processFile(ctx context.Context, dl dlInfo, tmpDir string) (stri
 			fmt.Println("Downloading SHA256 file:\t", dl.URLSHA)
 		}
 
-		respSha, err := http.Get(dl.URLSHA)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, dl.URLSHA, nil)
+		if err != nil {
+			return "", err
+		}
+
+		respSha, err := client.Do(req)
 		if err != nil {
 			return "", err
 		}
