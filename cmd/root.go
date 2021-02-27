@@ -21,6 +21,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/spf13/cobra"
 
@@ -106,6 +107,10 @@ func init() {
 	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
 	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://b3o-test-bucket.s3.ca-central-1.amazonaws.com/", "Source of packages (default is TODO ???")
 	viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source"))
+	rootCmd.PersistentFlags().StringVar(&cfg.OS, "OS", "", "Operating System (default is current OS")
+	viper.BindPFlag("OS", rootCmd.PersistentFlags().Lookup("OS"))
+	rootCmd.PersistentFlags().StringVar(&cfg.Arch, "Arch", "", "Architecture (default is current Architecture")
+	viper.BindPFlag("Arch", rootCmd.PersistentFlags().Lookup("Arch"))
 
 }
 
@@ -122,6 +127,8 @@ func initConfig() {
 	cfg.OutBinDir = filepath.Join(home, ".kindly", "bin")
 	cfg.OutCompletionDir = filepath.Join(home, ".kindly", "completion")
 	cfg.OutManDir = filepath.Join(home, ".kindly", "man")
+	cfg.OS = runtime.GOOS
+	cfg.Arch = runtime.GOARCH
 
 	if cfgFile != "" {
 		// Use config file from the flag.
@@ -144,4 +151,6 @@ func initConfig() {
 	cfg.OutBinDir = viper.GetString("OutBinDir")
 	cfg.UniqueDir = viper.GetBool("unique-directory")
 	cfg.OutManDir = viper.GetString("OutManDir")
+	cfg.OS = viper.GetString("OS")
+	cfg.Arch = viper.GetString("Arch")
 }

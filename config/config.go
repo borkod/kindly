@@ -9,4 +9,6 @@ type Config struct {
 	UniqueDir        bool
 	Completion       string
 	Source           string
+	OS               string
+	Arch             string
 }

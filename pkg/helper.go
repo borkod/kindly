@@ -45,14 +45,14 @@ func getYaml(arg string) (yamlConfig, error) {
 
 	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(resp.Body); err != nil {
-		fmt.Printf("Error downloading file: %s\n", arg)
+		//fmt.Printf("Error downloading file: %s\n", arg)
 		return yc, err
 	}
 
 	yaml.Unmarshal(buf.Bytes(), &yc)
 
 	if err != nil {
-		fmt.Printf("Error parsing YAML file: %s\n", arg)
+		//fmt.Printf("Error parsing YAML file: %s\n", arg)
 		return yc, err
 	}
 

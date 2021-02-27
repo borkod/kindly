@@ -2,7 +2,6 @@ package pkg
 
 import (
 	"errors"
-	"runtime"
 	"strings"
 
 	"golang.org/x/mod/semver"
@@ -16,7 +15,7 @@ type dlInfo struct {
 	osArch  string
 }
 
-func (k Kindly) getValidYConfig(n string) (yamlConfig, error) {
+func (k Kindly) getValidYConfig(n string) (dlInfo, yamlConfig, error) {
 	var err error
 	var yc yamlConfig
 
@@ -28,25 +27,25 @@ func (k Kindly) getValidYConfig(n string) (yamlConfig, error) {
 	if len(nVer) > 1 {
 		dl.Version = semver.Canonical(nVer[1])
 		if !semver.IsValid(dl.Version) {
-			return yc, errors.New("Invalid package version: " + n)
+			return dl, yc, errors.New("Invalid package version: " + n)
 		}
 	}
 
 	// Download package yaml spec and initialize yamlConfig struct
 	if yc, err = getYaml(k.cfg.Source + dl.Name + ".yml"); err != nil {
 		// TODO Write error message
-		return yc, errors.New("ERROR")
+		return dl, yc, errors.New("ERROR")
 	}
 
 	// Check if package is available
 	if !(len(yc.Spec.Name) > 0) {
-		return yc, errors.New("Unavailable Package: " + dl.Name)
+		return dl, yc, errors.New("Unavailable Package: " + dl.Name)
 	}
 
 	// Check if requested version is higher value than the available version in the package
 	if len(dl.Version) > 0 {
 		if semver.Compare(dl.Version, yc.Spec.Version) == 1 {
-			return yc, errors.New("Version requested: " + n + "\tLatest version: " + dl.Name + "@" + yc.Spec.Version)
+			return dl, yc, errors.New("Version requested: " + n + "\tLatest version: " + dl.Name + "@" + yc.Spec.Version)
 		}
 	}
 
@@ -57,12 +56,12 @@ func (k Kindly) getValidYConfig(n string) (yamlConfig, error) {
 
 	// processFile Downloads file from url, checks SHA value, and saves it to tmpDir
 	// TODO Should the requested OS ARCH be in config or request?
-	dl.osArch = runtime.GOOS + "_" + runtime.GOARCH
+	dl.osArch = k.cfg.OS + "_" + k.cfg.Arch
 
 	// Check if OS architecture is available
 	if _, ok := yc.Spec.Assets[dl.osArch]; !ok {
-		return yc, errors.New("Unavailable OS Architecture: " + dl.osArch)
+		return dl, yc, errors.New("Unavailable OS Architecture: " + dl.osArch)
 	}
 
-	return yc, nil
+	return dl, yc, nil
 }

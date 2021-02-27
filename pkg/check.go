@@ -29,7 +29,7 @@ func (k Kindly) Check(args []string) {
 		var err error
 		var yc yamlConfig
 
-		if yc, err = k.getValidYConfig(n); err != nil {
+		if _, yc, err = k.getValidYConfig(n); err != nil {
 			fmt.Println(err)
 			continue
 		}
