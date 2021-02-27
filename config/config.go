@@ -8,4 +8,5 @@ type Config struct {
 	OutManDir        string
 	UniqueDir        bool
 	Completion       string
+	Source           string
 }

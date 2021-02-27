@@ -104,6 +104,9 @@ func init() {
 	viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
 	rootCmd.PersistentFlags().StringVar(&cfg.Completion, "completion", "bash", "Completion shell setting")
 	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
+	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://b3o-test-bucket.s3.ca-central-1.amazonaws.com/", "Source of packages (default is TODO ???")
+	viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source"))
+
 }
 
 // initConfig reads in config file and ENV variables if set.
