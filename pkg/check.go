@@ -3,22 +3,11 @@ package pkg
 import (
 	"fmt"
 
-	"github.com/borkod/kindly/config"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v2"
 )
 
-// Kindly struct stores kindly config
-type Kindly struct {
-	cfg config.Config
-}
-
-// SetConfig sets the kindly struct config
-func (k *Kindly) SetConfig(c config.Config) {
-	k.cfg = c
-}
-
-// Check function checks if the packages passed in args are available
+// Check function checks if the packages passed in args are available TODO variadic function, logging interface
 func (k Kindly) Check(args []string) {
 	if k.cfg.Verbose {
 		fmt.Println("Checking packages...")

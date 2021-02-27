@@ -31,35 +31,7 @@ import (
 	"github.com/borkod/kindly/config"
 )
 
-// Config struct for kindly
-/*type Config struct {
-	Verbose          bool
-	OutBinDir        string
-	OutCompletionDir string
-	OutManDir        string
-	UniqueDir        bool
-	Completion       string
-}*/
-
 var cfgFile string
-
-// Verbose stores verbose flag value TODO SHould this be declared here?
-var Verbose bool
-
-// OutBinDir stores the configuration of the directory where binary files should be saved
-var OutBinDir string
-
-// OutCompletionDir stores the configuration of the directory where shell completion files should be saved
-var OutCompletionDir string
-
-// OutManDir stores the configuration of the directory where man pages files should be saved
-var OutManDir string
-
-// UniqueDir specifies if the binary files should be saved into their own unique dir
-var UniqueDir bool
-
-// Completion specifies completion shell configuration
-var Completion string
 
 var cfg config.Config
 
