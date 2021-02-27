@@ -10,12 +10,13 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-
 	"text/template"
+	"time"
 )
 
 // Install function implements install command
@@ -132,7 +133,23 @@ func (k Kindly) processFile(ctx context.Context, dl dlInfo, tmpDir string) (stri
 		fmt.Println("\nDownloading file:\t\t", dl.URL)
 	}
 
-	resp, err := http.Get(dl.URL)
+	const ConnectMaxWaitTime = 1 * time.Second
+	const RequestMaxWaitTime = 5 * time.Second
+
+	client := http.Client{
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout: ConnectMaxWaitTime,
+			}).DialContext,
+		},
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, dl.URL, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
