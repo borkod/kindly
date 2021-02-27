@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package cmd is for implementing commands
+// Package pkg is for implementing commands
 package pkg
 
 // yamlConfig is exported.
