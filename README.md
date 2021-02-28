@@ -1,6 +1,6 @@
 <div align="center">
 	<br>
-	<img src="www/img/kindly.JPG" alt="Logo">
+	<img src="www/img/kindly.png" alt="Logo" width="200">
 	<br>
 </div>
 
