@@ -19,6 +19,8 @@ package cmd
 
 import (
 	"context"
+	"log"
+	"os"
 
 	kindly "github.com/borkod/kindly/pkg"
 	"github.com/spf13/cobra"
@@ -46,9 +48,25 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
 		k.SetConfig(cfg)
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		k.Install(ctx, args)
+		k.SetLogger(log.New(os.Stdout, "", log.Ltime))
+		log.SetFlags(log.Ltime)
+
+		// Iterate over all packages provided as command arguments
+		for _, n := range args {
+			if cfg.Verbose {
+				log.Println("Installing package: ", n)
+			}
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if err := k.Install(ctx, n); err != nil {
+				log.Print(string("\u001b[31m"), err, string("\u001b[0m"), "\n")
+				continue
+			}
+		}
+
+		if cfg.Verbose {
+			log.Println("Installing files complete.")
+		}
 	},
 }
 

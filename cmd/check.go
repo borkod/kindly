@@ -19,10 +19,14 @@ package cmd
 
 import (
 	"context"
+	"fmt"
+	"log"
+	"os"
 
 	kindly "github.com/borkod/kindly/pkg"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"gopkg.in/yaml.v2"
 )
 
 // checkCmd represents the check command
@@ -39,9 +43,38 @@ to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
 		k.SetConfig(cfg)
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-		k.Check(ctx, args)
+		k.SetLogger(log.New(os.Stdout, "", log.Ltime))
+		log.SetFlags(log.Ltime)
+
+		if cfg.Verbose {
+			log.Println("Checking packages...")
+		}
+
+		// Iterate over all packages provided as command arguments
+		for _, n := range args {
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			yc, err := k.Check(ctx, n)
+			if err != nil {
+				log.Println("Package: ", n, string("\u001b[31m"), err, string("\u001b[0m"))
+				continue
+			}
+
+			// If no YAML output requested, just print one line. Otherwise print YAML.
+			if !viper.GetBool("output") {
+				log.Println("Package: ", n, string("\u001b[32m"), "OK", string("\u001b[0m"))
+			}
+
+			// If YAML output requested, print complete spec YAML
+			if viper.GetBool("output") {
+				d, err := yaml.Marshal(&yc)
+				if err != nil {
+					log.Println("ERROR: ", err)
+				}
+				fmt.Println("# Package: ", n)
+				fmt.Printf("---\n%s\n", string(d))
+			}
+		}
 	},
 }
 

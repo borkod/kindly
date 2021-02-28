@@ -82,7 +82,7 @@ func getYaml(ctx context.Context, arg string) (KindlyStruct, error) {
 func decompress(dst string, path string) error {
 
 	//if cfg.Verbose {
-	//	fmt.Println("Decompressing file:\t\t", path)
+	//	k.logger.Println("Decompressing file:\t\t", path)
 	//}
 
 	file, err := os.Open(path)
@@ -143,7 +143,7 @@ func decompress(dst string, path string) error {
 			}
 
 			//if cfg.Verbose {
-			//	fmt.Println("Writing file:\t\t\t", target)
+			//	k.logger.Println("Writing file:\t\t\t", target)
 			//}
 
 			// copy over contents
@@ -162,7 +162,7 @@ func decompress(dst string, path string) error {
 func copyFile(dst string, src string, binName string) error {
 
 	//if cfg.Verbose {
-	//	fmt.Println("Copying file:\t\t", binName)
+	//	k.logger.Println("Copying file:\t\t", binName)
 	//}
 
 	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
@@ -207,7 +207,7 @@ func copyFile(dst string, src string, binName string) error {
 func Unzip(src string, dest string) ([]string, error) {
 
 	//if cfg.Verbose {
-	//	fmt.Println("Unzipping file:\t\t", src)
+	//	k.logger.Println("Unzipping file:\t\t", src)
 	//}
 	var filenames []string
 
