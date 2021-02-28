@@ -22,28 +22,47 @@ import (
 	"archive/zip"
 	"bytes"
 	"compress/gzip"
+	"context"
 	"fmt"
 	"io"
+	"net"
 	"net/http"
 	"os"
 	"os/user"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"gopkg.in/yaml.v2"
 )
 
-// GetYaml downloads the yaml and configures the yamlConfig struct
-func getYaml(arg string) (yamlConfig, error) {
-	var yc yamlConfig
+// GetYaml downloads the yaml and configures the KindlyStruct struct
+func getYaml(ctx context.Context, arg string) (KindlyStruct, error) {
+	const ConnectMaxWaitTime = 1 * time.Second
+	const RequestMaxWaitTime = 5 * time.Second
 
-	resp, err := http.Get(arg)
+	client := http.Client{
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout: ConnectMaxWaitTime,
+			}).DialContext,
+		},
+	}
+
+	var yc KindlyStruct
+	buf := new(bytes.Buffer)
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, arg, nil)
+	if err != nil {
+		return yc, err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return yc, err
 	}
 	defer resp.Body.Close()
 
-	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(resp.Body); err != nil {
 		//fmt.Printf("Error downloading file: %s\n", arg)
 		return yc, err
@@ -63,7 +82,7 @@ func getYaml(arg string) (yamlConfig, error) {
 func decompress(dst string, path string) error {
 
 	//if cfg.Verbose {
-	//	fmt.Println("Decompressing file:\t\t", path)
+	//	k.logger.Println("Decompressing file:\t\t", path)
 	//}
 
 	file, err := os.Open(path)
@@ -124,7 +143,7 @@ func decompress(dst string, path string) error {
 			}
 
 			//if cfg.Verbose {
-			//	fmt.Println("Writing file:\t\t\t", target)
+			//	k.logger.Println("Writing file:\t\t\t", target)
 			//}
 
 			// copy over contents
@@ -143,7 +162,7 @@ func decompress(dst string, path string) error {
 func copyFile(dst string, src string, binName string) error {
 
 	//if cfg.Verbose {
-	//	fmt.Println("Copying file:\t\t", binName)
+	//	k.logger.Println("Copying file:\t\t", binName)
 	//}
 
 	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
@@ -188,7 +207,7 @@ func copyFile(dst string, src string, binName string) error {
 func Unzip(src string, dest string) ([]string, error) {
 
 	//if cfg.Verbose {
-	//	fmt.Println("Unzipping file:\t\t", src)
+	//	k.logger.Println("Unzipping file:\t\t", src)
 	//}
 	var filenames []string
 

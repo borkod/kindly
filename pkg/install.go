@@ -3,135 +3,133 @@ package pkg
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
-
 	"text/template"
+	"time"
 )
 
 // Install function implements install command
-func (k Kindly) Install(args []string) {
-	if k.cfg.Verbose {
-		fmt.Println("Installing files...")
-	}
+func (k Kindly) Install(ctx context.Context, n string) (err error) {
 
 	// Create a temporary directory where files will be downloaded
 	tmpDir, err := ioutil.TempDir("", "kindly_")
 	if err != nil {
-		fmt.Println(err)
+		k.logger.Println(err)
 		os.Exit(1)
 	}
 
 	// Clean up temporary directory
 	defer os.RemoveAll(tmpDir)
 
-	// Iterate over all packages provided as command arguments
-	for _, n := range args {
-		var tmpFile string
-		var err error
-		var yc yamlConfig
-		var dl dlInfo
+	var tmpFile string
+	var yc KindlyStruct
+	var dl dlInfo
 
-		if dl, yc, err = k.getValidYConfig(n); err != nil {
-			fmt.Println(err)
-			continue
-		}
+	if dl, yc, err = k.getValidYConfig(ctx, n); err != nil {
+		return err
+	}
 
-		// Applies Version values to the URL template
-		if dl.URL, dl.URLSHA, err = executeURL(dl, yc); err != nil {
-			continue
-		}
+	// Applies Version values to the URL template
+	if dl.URL, dl.URLSHA, err = executeURL(dl, yc); err != nil {
+		return err
+	}
 
-		// Downloads package file and package SHA file.
-		// Calculates package SHA value
-		// Compares package SHA value to SHA value in the SHA file
-		if tmpFile, err = k.processFile(dl, tmpDir); err != nil {
-			// TODO Write error message
-			fmt.Println("ERROR")
-			fmt.Println(err)
-			continue
-		}
+	// Downloads package file and package SHA file.
+	// Calculates package SHA value
+	// Compares package SHA value to SHA value in the SHA file
+	if tmpFile, err = k.processFile(ctx, dl, tmpDir); err != nil {
+		return err
+	}
 
-		// decompress tmpFile into tmpDir
-		if strings.Contains(tmpFile, "tar.gz") {
-			if err = decompress(tmpDir, tmpFile); err != nil {
-				// TODO Write error message
-				fmt.Println("ERROR")
-				fmt.Println(err)
-				continue
-			}
-		}
-
-		if strings.Contains(tmpFile, "zip") {
-			if _, err = Unzip(tmpFile, tmpDir); err != nil {
-				// TODO Write error message
-				fmt.Println("ERROR")
-				fmt.Println(err)
-				continue
-			}
-		}
-
-		// Copy all extracted bin files from tmpDir into OutBinDir
-		for _, n = range yc.Spec.Bin {
-			if strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.OS}}") ||
-				strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.Arch}}") {
-				if n, err = executeBin(n, k.cfg.OS, k.cfg.Arch); err != nil {
-					continue
-				}
-			}
-			if k.cfg.OS == "windows" {
-				n = n + ".exe"
-			}
-			if err = copyFile(k.cfg.OutBinDir, tmpDir, n); err != nil {
-				// TODO Write error message
-				fmt.Println("ERROR")
-				fmt.Println(err)
-			}
-		}
-
-		// Copy all extracted completion files from tmpDir into OutCompletionDir
-		for _, n = range yc.Spec.Completion[k.cfg.Completion] {
-			if err = copyFile(k.cfg.OutCompletionDir, tmpDir, n); err != nil {
-				// TODO Write error message
-				fmt.Println("ERROR")
-				fmt.Println(err)
-			}
-		}
-
-		// Copy all extracted man pages files from tmpDir into OutManDir
-		for _, n = range yc.Spec.Man {
-			if err = copyFile(k.cfg.OutManDir, tmpDir, n); err != nil {
-				// TODO Write error message
-				fmt.Println("ERROR")
-				fmt.Println(err)
-			}
+	// decompress tmpFile into tmpDir
+	if strings.Contains(tmpFile, "tar.gz") {
+		if err = decompress(tmpDir, tmpFile); err != nil {
+			return err
 		}
 	}
 
-	if k.cfg.Verbose {
-		fmt.Println("\nInstalling files complete.")
+	if strings.Contains(tmpFile, "zip") {
+		if _, err = Unzip(tmpFile, tmpDir); err != nil {
+			return err
+		}
 	}
+
+	// Copy all extracted bin files from tmpDir into OutBinDir
+	for _, n = range yc.Spec.Bin {
+		if strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.OS}}") ||
+			strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.Arch}}") {
+			if n, err = executeBin(n, k.cfg.OS, k.cfg.Arch); err != nil {
+				// TODO LOG ERROR
+				continue
+			}
+		}
+		if k.cfg.OS == "windows" {
+			n = n + ".exe"
+		}
+		if err = copyFile(k.cfg.OutBinDir, tmpDir, n); err != nil {
+			// TODO LOG ERROR
+			k.logger.Println("ERROR")
+			k.logger.Println(err)
+		}
+	}
+
+	// Copy all extracted completion files from tmpDir into OutCompletionDir
+	for _, n = range yc.Spec.Completion[k.cfg.Completion] {
+		if err = copyFile(k.cfg.OutCompletionDir, tmpDir, n); err != nil {
+			// TODO LOG ERROR
+			k.logger.Println("ERROR")
+			k.logger.Println(err)
+		}
+	}
+
+	// Copy all extracted man pages files from tmpDir into OutManDir
+	for _, n = range yc.Spec.Man {
+		if err = copyFile(k.cfg.OutManDir, tmpDir, n); err != nil {
+			// TODO LOG ERROR
+			k.logger.Println("ERROR")
+			k.logger.Println(err)
+		}
+	}
+	return nil
 }
 
 // Downloads package file and package SHA file.
 // Calculates package SHA value
 // Compares package SHA value to SHA value in the SHA file
-func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
+func (k Kindly) processFile(ctx context.Context, dl dlInfo, tmpDir string) (string, error) {
 
 	// Get the data
 	if k.cfg.Verbose {
-		fmt.Println("\nDownloading file:\t\t", dl.URL)
+		k.logger.Println("Downloading file: ", dl.URL)
 	}
 
-	resp, err := http.Get(dl.URL)
+	const ConnectMaxWaitTime = 1 * time.Second
+	const RequestMaxWaitTime = 5 * time.Second
+
+	client := http.Client{
+		Transport: &http.Transport{
+			DialContext: (&net.Dialer{
+				Timeout: ConnectMaxWaitTime,
+			}).DialContext,
+		},
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, dl.URL, nil)
+	if err != nil {
+		return "", err
+	}
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return "", err
 	}
@@ -146,7 +144,7 @@ func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
 	}
 
 	if k.cfg.Verbose {
-		fmt.Println("Download finished.")
+		k.logger.Println("Download finished.")
 	}
 
 	// Calculate SHA256 of downloaded file
@@ -157,16 +155,21 @@ func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
 	sum := hex.EncodeToString(hash.Sum(nil))
 
 	if k.cfg.Verbose {
-		fmt.Println("Calculated SHA256 value:\t", sum)
+		k.logger.Println("Calculated SHA256 value: ", sum)
 	}
 
 	// Get the sha file
 	if len(dl.URLSHA) > 1 {
 		if k.cfg.Verbose {
-			fmt.Println("Downloading SHA256 file:\t", dl.URLSHA)
+			k.logger.Println("Downloading SHA256 file: ", dl.URLSHA)
 		}
 
-		respSha, err := http.Get(dl.URLSHA)
+		req, err := http.NewRequestWithContext(ctx, http.MethodGet, dl.URLSHA, nil)
+		if err != nil {
+			return "", err
+		}
+
+		respSha, err := client.Do(req)
 		if err != nil {
 			return "", err
 		}
@@ -189,7 +192,7 @@ func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
 
 		// Get the sha file
 		if k.cfg.Verbose {
-			fmt.Println("SHA256 file hash value:\t\t", newStr)
+			k.logger.Println("SHA256 file hash value: ", newStr)
 		}
 
 		// Check if SHA256 values match
@@ -197,7 +200,7 @@ func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
 			return "", errors.New("SHA MISMATCH")
 		}
 	} else if k.cfg.Verbose {
-		fmt.Println("NO SHA FILE PROVIDED. SKIPPING SHA VALUE CHECK")
+		k.logger.Println("NO SHA FILE PROVIDED. SKIPPING SHA VALUE CHECK")
 	}
 
 	// Create the output file in temporary
@@ -205,7 +208,7 @@ func (k Kindly) processFile(dl dlInfo, tmpDir string) (string, error) {
 	filepath := filepath.Join(tmpDir, urlPath[len(urlPath)-1])
 
 	if k.cfg.Verbose {
-		fmt.Println("Writing output file:\t\t", filepath)
+		k.logger.Println("Writing output file: ", filepath)
 	}
 
 	out, err := os.Create(filepath)
@@ -225,7 +228,7 @@ func executeBin(n string, os string, arch string) (string, error) {
 
 	if err != nil {
 		// TODO Write error message
-		//fmt.Println("Error parsing binary: ", n)
+		//k.logger.Println("Error parsing binary: ", n)
 		return "", err
 	}
 
@@ -239,7 +242,7 @@ func executeBin(n string, os string, arch string) (string, error) {
 	var buf bytes.Buffer
 	if err = binT.Execute(&buf, nS); err != nil {
 		// TODO Write error message
-		//fmt.Println("Error parsing url: ", n)
+		//k.logger.Println("Error parsing url: ", n)
 		return "", err
 	}
 	newStr := buf.String()
@@ -251,26 +254,26 @@ func executeBin(n string, os string, arch string) (string, error) {
 }
 
 // Applies Version values to the URL template
-func executeURL(dl dlInfo, yc yamlConfig) (string, string, error) {
+func executeURL(dl dlInfo, yc KindlyStruct) (string, string, error) {
 	urlT, err := template.New("url").Parse(yc.Spec.Assets[dl.osArch].URL)
 
 	if err != nil {
 		// TODO Write error message
-		//fmt.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].URL)
+		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].URL)
 		return "", "", err
 	}
 
 	urlShaT, err := template.New("urlSha").Parse(yc.Spec.Assets[dl.osArch].ShaURL)
 	if err != nil {
 		// TODO Write error message
-		//fmt.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].ShaURL)
+		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].ShaURL)
 		return "", "", err
 	}
 
 	var buf bytes.Buffer
 	if err = urlT.Execute(&buf, dl); err != nil {
 		// TODO Write error message
-		//fmt.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].URL)
+		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].URL)
 		return "", "", err
 	}
 
@@ -280,7 +283,7 @@ func executeURL(dl dlInfo, yc yamlConfig) (string, string, error) {
 
 	if err = urlShaT.Execute(&buf, dl); err != nil {
 		// TODO Write error message
-		//fmt.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].ShaURL)
+		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].ShaURL)
 		return "", "", err
 	}
 	urlSha := buf.String()

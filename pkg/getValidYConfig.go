@@ -1,6 +1,7 @@
 package pkg
 
 import (
+	"context"
 	"errors"
 	"strings"
 
@@ -15,9 +16,9 @@ type dlInfo struct {
 	osArch  string
 }
 
-func (k Kindly) getValidYConfig(n string) (dlInfo, yamlConfig, error) {
+func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, KindlyStruct, error) {
 	var err error
-	var yc yamlConfig
+	var yc KindlyStruct
 
 	// Pull out package version if provided
 	nVer := strings.SplitN(n, "@", 2)
@@ -31,10 +32,10 @@ func (k Kindly) getValidYConfig(n string) (dlInfo, yamlConfig, error) {
 		}
 	}
 
-	// Download package yaml spec and initialize yamlConfig struct
-	if yc, err = getYaml(k.cfg.Source + dl.Name + ".yml"); err != nil {
+	// Download package yaml spec and initialize KindlyStruct struct
+	if yc, err = getYaml(ctx, k.cfg.Source+dl.Name+".yml"); err != nil {
 		// TODO Write error message
-		return dl, yc, errors.New("ERROR")
+		return dl, yc, err
 	}
 
 	// Check if package is available
