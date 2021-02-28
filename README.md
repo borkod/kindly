@@ -1,9 +1,6 @@
 <div align="center">
 	<br>
-  <style>
-  @import url('https://fonts.googleapis.com/css2?family=Molle:ital@1&display=swap');
-  </style>
-	<p style="font-family:Molle; font-size: 40px">Kindly</p> 
+	<img src="www/img/kindly.JPG" alt="Logo">
 	<br>
 </div>
 
