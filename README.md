@@ -1,9 +1,8 @@
-<head>
-<link rel="preconnect" href="https://fonts.gstatic.com">
-<link href="https://fonts.googleapis.com/css2?family=Molle:ital@1&display=swap" rel="stylesheet">
-</head>
 <div align="center">
 	<br>
+  <style>
+  @import url('https://fonts.googleapis.com/css2?family=Molle:ital@1&display=swap');
+  </style>
 	<p style="font-family:Molle; font-size: 40px">Kindly</p> 
 	<br>
 </div>
