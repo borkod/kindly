@@ -20,16 +20,22 @@ package pkg
 // KindlyStruct is exported.
 type KindlyStruct struct {
 	Spec struct {
-		Name        string `yaml:"name"`
-		Description string `yaml:"description"`
-		Homepage    string `yaml:"homepage"`
-		Version     string `yaml:"version"`
-		Assets      map[string]struct {
-			URL    string `yaml:"url"`
-			ShaURL string `yaml:"sha_url"`
-		}
-		Bin        []string            `yaml:"bin"`
-		Completion map[string][]string `yaml:"completion"`
-		Man        []string            `yaml:"man"`
+		Name        string              `yaml:"name"`
+		Description string              `yaml:"description"`
+		Homepage    string              `yaml:"homepage"`
+		RepoURL     string              `yaml:"repo_url"`
+		License     string              `yaml:"license"`
+		Tags        []string            `yaml:"tags"`
+		Version     string              `yaml:"version"`
+		Assets      map[string]Asset    `yaml:"assets"`
+		Bin         []string            `yaml:"bin"`
+		Completion  map[string][]string `yaml:"completion"`
+		Man         []string            `yaml:"man"`
 	}
+}
+
+// Asset is exported.
+type Asset struct {
+	URL    string `yaml:"url"`
+	ShaURL string `yaml:"sha_url"`
 }

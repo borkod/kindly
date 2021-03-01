@@ -7,7 +7,7 @@ import (
 	"github.com/google/go-github/github"
 )
 
-// List function implements list command
+// ListPackages function implements list command
 func (k Kindly) ListPackages(ctx context.Context) (s []string, err error) {
 
 	client := github.NewClient(nil)
