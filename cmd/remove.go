@@ -19,66 +19,84 @@ package cmd
 
 import (
 	"context"
-	"fmt"
+	"io/ioutil"
 	"log"
 	"os"
+	"strings"
 
 	kindly "github.com/borkod/kindly/pkg"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
+	"github.com/spf13/viper"
 )
 
-// templateCmd represents the template command
-var templateCmd = &cobra.Command{
-	Use:   "template [owner] [repo]",
-	Short: "Generate a YAML spec template for a Github repo",
+// removeCmd represents the remove command
+var removeCmd = &cobra.Command{
+	Use:   "remove [name of package]",
+	Short: "Removes a previously installed package",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
 Cobra is a CLI library for Go that empowers applications.
 This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
-	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
 		k.SetConfig(cfg)
 		k.SetLogger(log.New(os.Stdout, "", log.Ltime))
 		log.SetFlags(log.Ltime)
 
+		if !viper.GetBool("all") && len(args) == 0 {
+			log.Fatalln("Must provide a package name as an argument.")
+		}
+
+		if viper.GetBool("all") {
+			if len(args) > 0 {
+				log.Println("Remove All flag is set. Ignoring all other arguments.")
+			}
+			args = make([]string, 0)
+
+			files, err := ioutil.ReadDir(cfg.ManifestDir)
+			if err != nil {
+				log.Fatalln(err)
+			}
+
+			for _, n := range files {
+				if strings.HasSuffix(n.Name(), ".yaml") {
+					args = append(args, strings.TrimSuffix(n.Name(), ".yaml"))
+				}
+			}
+		}
+		// Iterate over all packages provided as command arguments
+		for _, n := range args {
+
+			if cfg.Verbose {
+				log.Println("Removing package: ", n)
+			}
+			ctx, cancel := context.WithCancel(context.Background())
+			defer cancel()
+			if err := k.Remove(ctx, n); err != nil {
+				log.Print(string("\u001b[31m"), err, string("\u001b[0m"), "\n")
+				continue
+			}
+		}
+
 		if cfg.Verbose {
-			log.Println("Generating template.")
+			log.Println("Removing complete.")
 		}
-
-		ctx, cancel := context.WithCancel(context.Background())
-		defer cancel()
-
-		owner := args[0]
-		repo := args[1]
-
-		kc, err := k.GenerateTemplate(ctx, owner, repo)
-		if err != nil {
-			log.Println(err)
-
-		}
-		d, err := yaml.Marshal(&kc)
-		if err != nil {
-			log.Println("ERROR: ", err)
-		}
-		fmt.Printf("---\n%s\n", string(d))
-
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(templateCmd)
+	rootCmd.AddCommand(removeCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// templateCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// removeCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// templateCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	removeCmd.Flags().BoolP("all", "a", false, "Removed all installed packages. If this flag is set all other arguments are ignored.")
+	viper.BindPFlag("all", removeCmd.Flags().Lookup("all"))
 }

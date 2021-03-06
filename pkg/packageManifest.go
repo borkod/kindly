@@ -17,7 +17,7 @@ limitations under the License.
 // Package pkg is for implementing commands
 package pkg
 
-type installedFilesList struct {
+type pkgManifest struct {
 	Name       string   `yaml:"name"`
 	Date       string   `yaml:"date"`
 	Bin        []string `yaml:"bin"`

@@ -212,7 +212,7 @@ func copyFile(dst string, src string, binName string) error {
 	return nil
 }
 
-func writeManifest(src installedFilesList, dst string) error {
+func writeManifest(src pkgManifest, dst string) error {
 
 	filename := filepath.Join(dst, src.Name+".yaml")
 

@@ -64,7 +64,7 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 		}
 	}
 
-	var l installedFilesList
+	var l pkgManifest
 	l.Name = p
 	l.Date = time.Now().Format("2006-01-02 15:04:05")
 

@@ -19,7 +19,6 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 
@@ -47,12 +46,12 @@ var listCmd = &cobra.Command{
 
 		s, err := k.ListPackages(ctx)
 		if err != nil {
-			fmt.Println(err)
+			log.Println(err)
 
 		}
 
 		for _, n := range s {
-			fmt.Println(n)
+			log.Println(n)
 		}
 	},
 }

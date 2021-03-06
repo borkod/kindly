@@ -37,7 +37,7 @@ type dlInfo struct {
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install [name of package]",
-	Short: "A brief description of your command",
+	Short: "Insall a package",
 	Long: `A longer description that spans multiple lines and likely contains examples
 and usage of using your command. For example:
 
