@@ -25,6 +25,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -183,6 +184,14 @@ func copyFile(dst string, src string, binName string) error {
 			//	dst = dirPath
 			//}
 
+			if _, err := os.Stat(dst); os.IsNotExist(err) {
+				if err2 := os.MkdirAll(dst, os.ModePerm); err2 != nil {
+					return err2
+				}
+			} else if err != nil {
+				return err
+			}
+
 			newFile, err := os.Create(filepath.Join(dst, info.Name()))
 			if err != nil {
 				return err
@@ -200,6 +209,30 @@ func copyFile(dst string, src string, binName string) error {
 	if err != nil {
 		return err
 	}
+	return nil
+}
+
+func writeManifest(src installedFilesList, dst string) error {
+
+	filename := filepath.Join(dst, src.Name+".yaml")
+
+	file, err := yaml.Marshal(src)
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(dst); os.IsNotExist(err) {
+		if err2 := os.MkdirAll(dst, os.ModePerm); err2 != nil {
+			return err2
+		}
+	} else if err != nil {
+		return err
+	}
+
+	if err = ioutil.WriteFile(filename, file, 0644); err != nil {
+		return err
+	}
+
 	return nil
 }
 

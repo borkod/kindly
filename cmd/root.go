@@ -67,11 +67,13 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kindly/.kindly.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&cfg.Verbose, "verbose", "v", false, "Verbose output")
-	rootCmd.PersistentFlags().StringVar(&cfg.OutBinDir, "OutBinDir", "", "Default binary file output directory (default is $HOME/.local/bin/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutBinDir, "OutBinDir", "", "Default binary file output directory (default is $HOME/.kindly/bin/)")
 	viper.BindPFlag("OutBinDir", rootCmd.PersistentFlags().Lookup("OutBinDir"))
-	rootCmd.PersistentFlags().StringVar(&cfg.OutCompletionDir, "OutCompletionDir", "", "Default Completions file output directory (default is $HOME/.local/completion/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.ManifestDir, "ManifestDir", "", "Default kindly manifests directory (default is $HOME/.kindly/manifests/)")
+	viper.BindPFlag("ManifestDir", rootCmd.PersistentFlags().Lookup("ManifestDir"))
+	rootCmd.PersistentFlags().StringVar(&cfg.OutCompletionDir, "OutCompletionDir", "", "Default Completions file output directory (default is $HOME/.kindly/completion/)")
 	viper.BindPFlag("OutCompletionDir", rootCmd.PersistentFlags().Lookup("OutCompletionDir"))
-	rootCmd.PersistentFlags().StringVar(&cfg.OutManDir, "OutManDir", "", "Default Man Pages output directory (default is $HOME/.local/man/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutManDir, "OutManDir", "", "Default Man Pages output directory (default is $HOME/.kindly/man/)")
 	viper.BindPFlag("OutManDir", rootCmd.PersistentFlags().Lookup("OutManDir"))
 	rootCmd.PersistentFlags().BoolVarP(&cfg.UniqueDir, "unique-directory", "", false, "write files into unique directory (default is false)")
 	viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
@@ -96,6 +98,7 @@ func initConfig() {
 	}
 
 	// Initialize default values
+	cfg.ManifestDir = filepath.Join(home, ".kindly", "manifests")
 	cfg.OutBinDir = filepath.Join(home, ".kindly", "bin")
 	cfg.OutCompletionDir = filepath.Join(home, ".kindly", "completion")
 	cfg.OutManDir = filepath.Join(home, ".kindly", "man")
@@ -120,6 +123,7 @@ func initConfig() {
 	}
 
 	// Update variables based on any flags or environment variables set by the user
+	cfg.ManifestDir = viper.GetString("ManifestDir")
 	cfg.OutBinDir = viper.GetString("OutBinDir")
 	cfg.UniqueDir = viper.GetBool("unique-directory")
 	cfg.OutManDir = viper.GetString("OutManDir")

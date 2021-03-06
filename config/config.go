@@ -4,6 +4,7 @@ package config
 type Config struct {
 	Verbose          bool
 	UniqueDir        bool
+	ManifestDir      string
 	OutBinDir        string
 	OutCompletionDir string
 	OutManDir        string

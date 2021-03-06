@@ -19,7 +19,7 @@ import (
 )
 
 // Install function implements install command
-func (k Kindly) Install(ctx context.Context, n string) (err error) {
+func (k Kindly) Install(ctx context.Context, p string) (err error) {
 
 	// Create a temporary directory where files will be downloaded
 	tmpDir, err := ioutil.TempDir("", "kindly_")
@@ -35,7 +35,7 @@ func (k Kindly) Install(ctx context.Context, n string) (err error) {
 	var yc KindlyStruct
 	var dl dlInfo
 
-	if dl, yc, err = k.getValidYConfig(ctx, n); err != nil {
+	if dl, yc, err = k.getValidYConfig(ctx, p); err != nil {
 		return err
 	}
 
@@ -64,8 +64,12 @@ func (k Kindly) Install(ctx context.Context, n string) (err error) {
 		}
 	}
 
+	var l installedFilesList
+	l.Name = p
+	l.Date = time.Now().Format("2006-01-02 15:04:05")
+
 	// Copy all extracted bin files from tmpDir into OutBinDir
-	for _, n = range yc.Spec.Bin {
+	for _, n := range yc.Spec.Bin {
 		if strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.OS}}") ||
 			strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.Arch}}") {
 			if n, err = executeBin(n, k.cfg.OS, k.cfg.Arch); err != nil {
@@ -81,25 +85,35 @@ func (k Kindly) Install(ctx context.Context, n string) (err error) {
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
+		l.Bin = append(l.Bin, n)
 	}
 
 	// Copy all extracted completion files from tmpDir into OutCompletionDir
-	for _, n = range yc.Spec.Completion[k.cfg.Completion] {
+	for _, n := range yc.Spec.Completion[k.cfg.Completion] {
 		if err = copyFile(k.cfg.OutCompletionDir, tmpDir, n); err != nil {
 			// TODO LOG ERROR
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
+		l.Completion = append(l.Completion, n)
 	}
 
 	// Copy all extracted man pages files from tmpDir into OutManDir
-	for _, n = range yc.Spec.Man {
+	for _, n := range yc.Spec.Man {
 		if err = copyFile(k.cfg.OutManDir, tmpDir, n); err != nil {
 			// TODO LOG ERROR
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
+		l.Man = append(l.Man, n)
 	}
+
+	// Write the package manifest file
+	if err = writeManifest(l, k.cfg.ManifestDir); err != nil {
+		k.logger.Panicln(("ERROR"))
+		k.logger.Panicln(err)
+	}
+
 	return nil
 }
 
