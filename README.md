@@ -6,10 +6,10 @@
 
 # Kindly
 
-[![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver)](https://github.com/borkod/kindly/releases/latest)
+[![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver&style=flat-square)](https://github.com/borkod/kindly/releases/latest)
 ![Build Status](https://github.com/borkod/kindly/workflows/build/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly?style=flat-square)](https://goreportcard.com/report/github.com/borkod/kindly)
-![GitHub](https://img.shields.io/github/license/borkod/kindly)
+![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
 [![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square)](https://www.buymeacoffee.com/borkod)
 
@@ -89,6 +89,7 @@ Flags:
 
 - Testing
 - Add more packages
+- Github workflows
 - `Install` command:
 	- If user installs a new version of a package that has less files or different file names than a previously installed version - remove may not properly remove all files as the package manifest will be rewritten.
 	- Solution: uninstall previous version first?
