@@ -237,7 +237,7 @@ func writeManifest(src pkgManifest, dst string) error {
 }
 
 // Unzip will decompress a zip archive, moving all files and folders within the zip file (parameter 1) to an output directory (parameter 2)
-func Unzip(src string, dest string) ([]string, error) {
+func unzip(src string, dest string) ([]string, error) {
 
 	//if cfg.Verbose {
 	//	k.logger.Println("Unzipping file:\t\t", src)
@@ -297,7 +297,7 @@ func Unzip(src string, dest string) ([]string, error) {
 }
 
 // ExpandPath is helper function to expand file location
-func ExpandPath(path string) string {
+func expandPath(path string) string {
 	if filepath.IsAbs(path) {
 		return path
 	}

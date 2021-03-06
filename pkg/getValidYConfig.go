@@ -34,7 +34,6 @@ func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, KindlySt
 
 	// Download package yaml spec and initialize KindlyStruct struct
 	if yc, err = getYaml(ctx, k.cfg.Source+dl.Name+".yml"); err != nil {
-		// TODO Write error message
 		return dl, yc, err
 	}
 
@@ -56,7 +55,6 @@ func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, KindlySt
 	}
 
 	// processFile Downloads file from url, checks SHA value, and saves it to tmpDir
-	// TODO Should the requested OS ARCH be in config or request?
 	dl.osArch = k.cfg.OS + "_" + k.cfg.Arch
 
 	// Check if OS architecture is available

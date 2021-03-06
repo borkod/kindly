@@ -32,13 +32,15 @@ import (
 // removeCmd represents the remove command
 var removeCmd = &cobra.Command{
 	Use:   "remove [name of package]",
-	Short: "Removes a previously installed package",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Removes a previously installed package.",
+	Long: `Use to remove a previously installed package.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Optionally, use the --all flag to remove all installed packages.
+If set, all other arguments are ignored.
+
+Examples:
+	kindly remove gh-cli
+	kindly remove -a`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
 		k.SetConfig(cfg)

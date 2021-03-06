@@ -29,8 +29,11 @@ import (
 // listCmd represents the list command
 var listCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List available packages",
-	Long:  `Lists available packages.`,
+	Short: "Lists available packages.",
+	Long: `Lists available packages.
+	
+Example:
+	kindly list`,
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
 		k.SetConfig(cfg)

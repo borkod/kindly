@@ -59,7 +59,7 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 	}
 
 	if strings.Contains(tmpFile, "zip") {
-		if _, err = Unzip(tmpFile, tmpDir); err != nil {
+		if _, err = unzip(tmpFile, tmpDir); err != nil {
 			return err
 		}
 	}
@@ -67,13 +67,15 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 	var l pkgManifest
 	l.Name = p
 	l.Date = time.Now().Format("2006-01-02 15:04:05")
+	l.Version = dl.Version
 
 	// Copy all extracted bin files from tmpDir into OutBinDir
 	for _, n := range yc.Spec.Bin {
 		if strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.OS}}") ||
 			strings.Contains(strings.ReplaceAll(n, " ", ""), "{{.Arch}}") {
 			if n, err = executeBin(n, k.cfg.OS, k.cfg.Arch); err != nil {
-				// TODO LOG ERROR
+				k.logger.Println("ERROR")
+				k.logger.Println(err)
 				continue
 			}
 		}
@@ -81,7 +83,6 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 			n = n + ".exe"
 		}
 		if err = copyFile(k.cfg.OutBinDir, tmpDir, n); err != nil {
-			// TODO LOG ERROR
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
@@ -91,7 +92,6 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 	// Copy all extracted completion files from tmpDir into OutCompletionDir
 	for _, n := range yc.Spec.Completion[k.cfg.Completion] {
 		if err = copyFile(k.cfg.OutCompletionDir, tmpDir, n); err != nil {
-			// TODO LOG ERROR
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
@@ -101,7 +101,6 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 	// Copy all extracted man pages files from tmpDir into OutManDir
 	for _, n := range yc.Spec.Man {
 		if err = copyFile(k.cfg.OutManDir, tmpDir, n); err != nil {
-			// TODO LOG ERROR
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
@@ -110,8 +109,8 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 
 	// Write the package manifest file
 	if err = writeManifest(l, k.cfg.ManifestDir); err != nil {
-		k.logger.Panicln(("ERROR"))
-		k.logger.Panicln(err)
+		k.logger.Println(("ERROR"))
+		k.logger.Println(err)
 	}
 
 	return nil
@@ -241,8 +240,6 @@ func executeBin(n string, os string, arch string) (string, error) {
 	binT, err := template.New("bin").Parse(n)
 
 	if err != nil {
-		// TODO Write error message
-		//k.logger.Println("Error parsing binary: ", n)
 		return "", err
 	}
 
@@ -255,8 +252,6 @@ func executeBin(n string, os string, arch string) (string, error) {
 
 	var buf bytes.Buffer
 	if err = binT.Execute(&buf, nS); err != nil {
-		// TODO Write error message
-		//k.logger.Println("Error parsing url: ", n)
 		return "", err
 	}
 	newStr := buf.String()
@@ -272,22 +267,16 @@ func executeURL(dl dlInfo, yc KindlyStruct) (string, string, error) {
 	urlT, err := template.New("url").Parse(yc.Spec.Assets[dl.osArch].URL)
 
 	if err != nil {
-		// TODO Write error message
-		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].URL)
 		return "", "", err
 	}
 
 	urlShaT, err := template.New("urlSha").Parse(yc.Spec.Assets[dl.osArch].ShaURL)
 	if err != nil {
-		// TODO Write error message
-		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].ShaURL)
 		return "", "", err
 	}
 
 	var buf bytes.Buffer
 	if err = urlT.Execute(&buf, dl); err != nil {
-		// TODO Write error message
-		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].URL)
 		return "", "", err
 	}
 
@@ -296,8 +285,6 @@ func executeURL(dl dlInfo, yc KindlyStruct) (string, string, error) {
 	buf.Reset()
 
 	if err = urlShaT.Execute(&buf, dl); err != nil {
-		// TODO Write error message
-		//k.logger.Println("Error parsing url: ", yc.Spec.Assets[dl.osArch].ShaURL)
 		return "", "", err
 	}
 	urlSha := buf.String()

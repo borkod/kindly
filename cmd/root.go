@@ -14,7 +14,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package cmd is for implementing commands
+// Package cmd is for implementing kindly commands
 package cmd
 
 import (
@@ -37,15 +37,12 @@ var cfg config.Config
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:     "kindly",
+	Use:     "kindly <command>",
 	Version: "0.0.1",
-	Short:   "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Short:   "Kindly installs Linux binaries.",
+	Long: `Kindly is a free and open-source software package management system that simplifies the installation of software on Linux.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Kindly downloads pre-compiled binaries for available packages.`,
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	//	Run: func(cmd *cobra.Command, args []string) { },
@@ -71,19 +68,19 @@ func init() {
 	viper.BindPFlag("OutBinDir", rootCmd.PersistentFlags().Lookup("OutBinDir"))
 	rootCmd.PersistentFlags().StringVar(&cfg.ManifestDir, "ManifestDir", "", "Default kindly manifests directory (default is $HOME/.kindly/manifests/)")
 	viper.BindPFlag("ManifestDir", rootCmd.PersistentFlags().Lookup("ManifestDir"))
-	rootCmd.PersistentFlags().StringVar(&cfg.OutCompletionDir, "OutCompletionDir", "", "Default Completions file output directory (default is $HOME/.kindly/completion/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutCompletionDir, "OutCompletionDir", "", "Default completions file output directory (default is $HOME/.kindly/completion/)")
 	viper.BindPFlag("OutCompletionDir", rootCmd.PersistentFlags().Lookup("OutCompletionDir"))
-	rootCmd.PersistentFlags().StringVar(&cfg.OutManDir, "OutManDir", "", "Default Man Pages output directory (default is $HOME/.kindly/man/)")
+	rootCmd.PersistentFlags().StringVar(&cfg.OutManDir, "OutManDir", "", "Default man pages output directory (default is $HOME/.kindly/man/)")
 	viper.BindPFlag("OutManDir", rootCmd.PersistentFlags().Lookup("OutManDir"))
-	rootCmd.PersistentFlags().BoolVarP(&cfg.UniqueDir, "unique-directory", "", false, "write files into unique directory (default is false)")
-	viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
+	//rootCmd.PersistentFlags().BoolVarP(&cfg.UniqueDir, "unique-directory", "", false, "write files into unique directory (default is false)")
+	//viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
 	rootCmd.PersistentFlags().StringVar(&cfg.Completion, "completion", "bash", "Completion shell setting")
 	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
 	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://b3o-test-bucket.s3.ca-central-1.amazonaws.com/", "Source of packages (default is TODO ???")
 	viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source"))
-	rootCmd.PersistentFlags().StringVar(&cfg.OS, "OS", "", "Operating System (default is current OS")
+	rootCmd.PersistentFlags().StringVar(&cfg.OS, "OS", "", "Operating System (default is current OS)")
 	viper.BindPFlag("OS", rootCmd.PersistentFlags().Lookup("OS"))
-	rootCmd.PersistentFlags().StringVar(&cfg.Arch, "Arch", "", "Architecture (default is current Architecture")
+	rootCmd.PersistentFlags().StringVar(&cfg.Arch, "Arch", "", "Architecture (default is current architecture)")
 	viper.BindPFlag("Arch", rootCmd.PersistentFlags().Lookup("Arch"))
 
 }
@@ -125,7 +122,7 @@ func initConfig() {
 	// Update variables based on any flags or environment variables set by the user
 	cfg.ManifestDir = viper.GetString("ManifestDir")
 	cfg.OutBinDir = viper.GetString("OutBinDir")
-	cfg.UniqueDir = viper.GetBool("unique-directory")
+	//cfg.UniqueDir = viper.GetBool("unique-directory")
 	cfg.OutManDir = viper.GetString("OutManDir")
 	cfg.OS = viper.GetString("OS")
 	cfg.Arch = viper.GetString("Arch")

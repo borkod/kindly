@@ -31,13 +31,17 @@ import (
 // templateCmd represents the template command
 var templateCmd = &cobra.Command{
 	Use:   "template [owner] [repo]",
-	Short: "Generate a YAML spec template for a Github repo",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Generate a Kindly YAML spec template for a GitHub repo.",
+	Long: `This is a helper command to generate a Kindly YAML template for a GitHub repo.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+GitHub repo owner and repo name are provided as separate arguments.
+
+The command attempts to locate the latest release, detect available OS and architecture types for the latest release, and output a draft Kindly YAML spec.
+
+The output Kindly YAML spec will require manual review for correctness and additional manual for to make it complete.
+
+Example:
+	kindly template cli cli`,
 	Args: cobra.ExactArgs(2),
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly

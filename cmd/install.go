@@ -37,13 +37,21 @@ type dlInfo struct {
 // installCmd represents the install command
 var installCmd = &cobra.Command{
 	Use:   "install [name of package]",
-	Short: "Insall a package",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
+	Short: "Installs one or many packages.",
+	Long: `Installs one or many packages.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+Example:
+	kindly install gh-cli
+
+You can use @ to specify a semantic version of the package.
+
+Example:
+	kindly install gh-cli@v1.0.0
+
+You can provide multiple arguments to install multiple packages.
+	
+Example:
+	kindly install gh-cli ghz`,
 	Args: cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		var k kindly.Kindly
