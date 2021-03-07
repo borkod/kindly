@@ -8,7 +8,7 @@
 
 [![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver&style=flat-square)](https://github.com/borkod/kindly/releases/latest)
 ![Build Status](https://github.com/borkod/kindly/workflows/Go/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly?style=flat-square)](https://goreportcard.com/report/github.com/borkod/kindly)
+[![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly)](https://goreportcard.com/report/github.com/borkod/kindly)
 ![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
 [![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square)](https://www.buymeacoffee.com/borkod)
@@ -88,12 +88,13 @@ Flags:
 ## Roadmap / TODO
 
 - Refactor Cobra commands to remove init
+- Add functionality to accept sources of spec files as an array; Search for a package through the list of sources.
 - Testing
 - Add more packages
 - Github workflows
 - `Install` command:
-	- If user installs a new version of a package that has less files or different file names than a previously installed version - remove may not properly remove all files as the package manifest will be rewritten.
-	- Solution: uninstall previous version first?
+  - Update command to accept local Kindly spec YAML files, or full remote URL
+	- If user installs a new version of a package that has less files or different file names than a previously installed version - remove may not properly remove all files as the package manifest (and hence file names) will be rewritten. User will have to manually delete any unwanted files from the previous version. Ensure this is documented.
 - Add `Update` command
 	- Updates all installed packages if new version available
 - Add command to list locally installed packages
