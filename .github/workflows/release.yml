@@ -1,0 +1,136 @@
+name: release
+
+on:
+  push:
+    branches: [ main ]
+    tags: 
+      - v*
+  pull_request:
+    branches: [ main ]
+    tags: 
+      - v*
+
+jobs:
+  github_build:
+    name: Deploy Release
+    strategy:
+      matrix:
+        target:
+          - linux-x86_64
+          - darwin-x86_64
+          - windows-x86_64
+        include:
+          - target: linux-x86_64
+            os: ubuntu-latest
+            name: kindly-linux-x86_64.tar.gz
+          - target: darwin-x86_64
+            os: macOS-latest
+            name: kindly-darwin-x86_64.tar.gz
+          - target: windows-x86_64
+            os: windows-latest
+            name: kindly-windows-x86_64.zip
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Get current time
+        uses: gerred/actions/current-time@master
+        id: current-time
+
+      - name: Set version
+        run: |
+          echo 'RELEASE_VERSION<<EOF' >> $GITHUB_ENV
+          git describe --tags $(git rev-list --tags --max-count=1) >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+
+      - name: Build kindly
+        run: |
+          mkdir ./dist/
+          mkdir ./dist/${{ matrix.target }}/
+          go build -ldflags='-s -w -X main.version=${{ env.RELEASE_VERSION }} -X main.commit=${{ github.sha }} -X main.date=${{ steps.current-time.outputs.time }}' -o ./dist/${{ matrix.target }}/ ./...
+
+      - name: Prepare build artifacts [Windows]
+        if: matrix.os == 'windows-latest'
+        run: |
+          cp ./LICENSE ./dist/${{ matrix.target }}/LICENSE
+          cd ./dist/${{ matrix.target }}
+          7z a ../../${{ matrix.name }} kindly.exe ./LICENSE
+          
+      - name: Prepare build artifacts [-nix]
+        if: matrix.os != 'windows-latest'
+        run: |
+          cp ./LICENSE ./dist/${{ matrix.target }}/LICENSE
+          cd ./dist/${{ matrix.target }}
+          tar czvf ../../${{ matrix.name }} kindly LICENSE
+          cd -
+          
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.name }}
+          
+  github_release:
+    name: Create GitHub Release
+    needs: github_build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Prune & Unshallow
+        run: git fetch --prune --unshallow
+
+      - name: Set version
+        run: |
+          echo 'RELEASE_VERSION<<EOF' >> $GITHUB_ENV
+          echo ${GITHUB_REF/refs\/tags\//} >> $GITHUB_ENV
+          echo 'EOF' >> $GITHUB_ENV
+      # These can be squashed when https://github.com/actions/download-artifact/issues/6 is closed
+      - name: Download releases from github_build
+        uses: actions/download-artifact@v1
+        with:
+          name: kindly-linux-x86_64.tar.gz
+          path: .
+      - name: Download releases from github_build
+        uses: actions/download-artifact@v1
+        with:
+          name: kindly-darwin-x86_64.tar.gz
+          path: .
+      - name: Download releases from github_build
+        uses: actions/download-artifact@v1
+        with:
+          name: kindly-windows-x86_64.zip
+          path: .
+
+      - name: Generate checksums
+        run: for file in kindly-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
+
+      #- name: Generate release notes
+      #  run: |
+      #    # Temporary fix for https://github.com/actions/setup-go/issues/14
+      #    export PATH=$PATH:$(go env GOPATH)/bin
+      #    go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
+      #    # git-chglog -c .chglog/config.yml $(git describe --tags $(git rev-list --tags --max-count=1))
+      #    git-chglog -c .chglog/config.yml ${{ env.RELEASE_VERSION }} > RELEASE-${{ env.RELEASE_VERSION }}.md
+      - name: Create GitHub release ${{ matrix.target }}
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            kindly-linux-x86_64.tar.gz
+            kindly-linux-x86_64.tar.gz.sha256
+            kindly-darwin-x86_64.tar.gz
+            kindly-darwin-x86_64.tar.gz.sha256
+            kindly-windows-x86_64.zip
+            kindly-windows-x86_64.zip.sha256
+          body_path: RELEASE-${{ env.RELEASE_VERSION }}.md
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAGES_ACTION_TOKEN }}        
+        
+        
