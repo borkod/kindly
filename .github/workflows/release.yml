@@ -89,7 +89,8 @@ jobs:
       - name: Set version
         run: |
           echo 'RELEASE_VERSION<<EOF' >> $GITHUB_ENV
-          echo ${GITHUB_REF/refs\/tags\//} >> $GITHUB_ENV
+          git fetch --tags
+          git describe --tags $(git rev-list --tags --max-count=1) >> $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
       # These can be squashed when https://github.com/actions/download-artifact/issues/6 is closed
       - name: Download releases from github_build
