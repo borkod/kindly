@@ -43,7 +43,6 @@ jobs:
         run: |
           echo 'RELEASE_VERSION<<EOF' >> $GITHUB_ENV
           git fetch --tags
-          git rev-list --tags --max-count=1
           git describe --tags $(git rev-list --tags --max-count=1)
           git describe --tags $(git rev-list --tags --max-count=1) >> $GITHUB_ENV
           echo $GITHUB_ENV
@@ -112,13 +111,13 @@ jobs:
       - name: Generate checksums
         run: for file in kindly-*; do openssl dgst -sha256 -r "$file" | awk '{print $1}' > "${file}.sha256"; done
 
-      #- name: Generate release notes
-      #  run: |
-      #    # Temporary fix for https://github.com/actions/setup-go/issues/14
-      #    export PATH=$PATH:$(go env GOPATH)/bin
-      #    go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
-      #    # git-chglog -c .chglog/config.yml $(git describe --tags $(git rev-list --tags --max-count=1))
-      #    git-chglog -c .chglog/config.yml ${{ env.RELEASE_VERSION }} > RELEASE-${{ env.RELEASE_VERSION }}.md
+      - name: Generate release notes
+        run: |
+          # Temporary fix for https://github.com/actions/setup-go/issues/14
+          export PATH=$PATH:$(go env GOPATH)/bin
+          go get -u github.com/git-chglog/git-chglog/cmd/git-chglog
+          # git-chglog -c .chglog/config.yml $(git describe --tags $(git rev-list --tags --max-count=1))
+          git-chglog -c .chglog/config.yml ${{ env.RELEASE_VERSION }} > RELEASE-${{ env.RELEASE_VERSION }}.md
       - name: Create GitHub release ${{ matrix.target }}
         uses: softprops/action-gh-release@v1
         with:
