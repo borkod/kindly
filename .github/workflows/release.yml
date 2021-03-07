@@ -42,6 +42,7 @@ jobs:
       - name: Set version
         run: |
           echo 'RELEASE_VERSION<<EOF' >> $GITHUB_ENV
+          git fetch --tags
           git rev-list --tags --max-count=1
           git describe --tags $(git rev-list --tags --max-count=1)
           git describe --tags $(git rev-list --tags --max-count=1) >> $GITHUB_ENV
