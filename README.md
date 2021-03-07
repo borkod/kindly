@@ -7,7 +7,7 @@
 # Kindly
 
 [![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver&style=flat-square)](https://github.com/borkod/kindly/releases/latest)
-![Build Status](https://github.com/borkod/kindly/workflows/build/badge.svg)
+![Build Status](https://github.com/borkod/kindly/workflows/Go/badge.svg)
 [![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly?style=flat-square)](https://goreportcard.com/report/github.com/borkod/kindly)
 ![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
@@ -78,7 +78,7 @@ Flags:
       --OutBinDir string          Default binary file output directory (default is $HOME/.kindly/bin/)
       --OutCompletionDir string   Default completions file output directory (default is $HOME/.kindly/completion/)
       --OutManDir string          Default man pages output directory (default is $HOME/.kindly/man/)
-      --Source string             Source of packages (default is TODO ??? (default "https://b3o-test-bucket.s3.ca-central-1.amazonaws.com/")
+      --Source string             Source of package spec files (default "https://raw.githubusercontent.com/borkod/kindly-specs/main/specs/")
       --completion string         Completion shell setting (default "bash")
       --config string             config file (default is $HOME/.kindly/.kindly.yaml)
   -h, --help                      help for kindly
@@ -87,6 +87,7 @@ Flags:
 ```
 ## Roadmap / TODO
 
+- Refactor Cobra commands to remove init
 - Testing
 - Add more packages
 - Github workflows

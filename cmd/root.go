@@ -76,7 +76,7 @@ func init() {
 	//viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
 	rootCmd.PersistentFlags().StringVar(&cfg.Completion, "completion", "bash", "Completion shell setting")
 	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
-	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://b3o-test-bucket.s3.ca-central-1.amazonaws.com/", "Source of packages (default is TODO ???")
+	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://raw.githubusercontent.com/borkod/kindly-specs/main/specs/", "Source of package spec files")
 	viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source"))
 	rootCmd.PersistentFlags().StringVar(&cfg.OS, "OS", "", "Operating System (default is current OS)")
 	viper.BindPFlag("OS", rootCmd.PersistentFlags().Lookup("OS"))

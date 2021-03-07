@@ -33,7 +33,7 @@ func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, KindlySt
 	}
 
 	// Download package yaml spec and initialize KindlyStruct struct
-	if yc, err = getYaml(ctx, k.cfg.Source+dl.Name+".yml"); err != nil {
+	if yc, err = getYaml(ctx, k.cfg.Source+dl.Name+".yaml"); err != nil {
 		return dl, yc, err
 	}
 
