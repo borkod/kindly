@@ -12,9 +12,8 @@ func (k Kindly) ListPackages(ctx context.Context) (s []string, err error) {
 
 	client := github.NewClient(nil)
 	source := k.cfg.Source
-	source = "https://raw.githubusercontent.com/bojand/ghz/master/testdata/config"
 	source = strings.Replace(source, "https://raw.githubusercontent.com/", "", 1)
-	source = strings.Replace(source, "/master", "", 1)
+	source = strings.Replace(source, "/main", "", 1)
 	source = strings.TrimSuffix(source, "/")
 	sInfo := strings.Split(source, "/")
 
@@ -25,7 +24,7 @@ func (k Kindly) ListPackages(ctx context.Context) (s []string, err error) {
 	}
 
 	for _, n := range dir {
-		s = append(s, strings.TrimSuffix(*n.Name, ".go"))
+		s = append(s, strings.TrimSuffix(*n.Name, ".yaml"))
 	}
 
 	return s, nil
