@@ -8,12 +8,12 @@
 
 [![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver&style=flat-square)](https://github.com/borkod/kindly/releases/latest)
 ![Build Status](https://github.com/borkod/kindly/workflows/Go/badge.svg)
-[![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly)](https://goreportcard.com/report/github.com/borkod/kindly)
+[![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly?style=flat-square)](https://goreportcard.com/report/github.com/borkod/kindly)
 ![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
 [![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square)](https://www.buymeacoffee.com/borkod)
 
-[Kindly](https://kindly.sh/) is a free and open-source software package management system that simplifies the installation of software on Linux..
+[Kindly](https://kindly.sh/) is a free and open-source software package management CLI tool that simplifies the installation of software.
 
 ## Documentation
 
@@ -25,14 +25,6 @@ All documentation at [kindly.sh](https://kindly.sh).
 
 1. Download a prebuilt executable binary for your operating system from the [GitHub releases page](https://github.com/borko/kindly/releases).
 2. Unzip the archive and place the executable binary wherever you would like to run it from. Additionally consider adding the location directory in the `PATH` variable if you would like the `kindly` command to be available everywhere.
-
-### Homebrew
-
-TODO 
-
-```sh
-brew install kindly
-```
 
 ### Compile
 
@@ -94,7 +86,7 @@ Flags:
 - Github workflows
 - `Install` command:
   - Update command to accept local Kindly spec YAML files, or full remote URL
-	- If user installs a new version of a package that has less files or different file names than a previously installed version - remove may not properly remove all files as the package manifest (and hence file names) will be rewritten. User will have to manually delete any unwanted files from the previous version. Ensure this is documented.
+  - If user installs a new version of a package that has less files or different file names than a previously installed version - remove may not properly remove all files as the package manifest (and hence file names) will be rewritten. User will have to manually delete any unwanted files from the previous version. Ensure this is documented.
 - Add `Update` command
 	- Updates all installed packages if new version available
 - Add command to list locally installed packages
