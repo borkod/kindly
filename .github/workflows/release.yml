@@ -42,7 +42,10 @@ jobs:
       - name: Set version
         run: |
           echo 'RELEASE_VERSION<<EOF' >> $GITHUB_ENV
+          echo 'RELEASE_VERSION<<EOF'
+          echo $GITHUB_ENV
           git describe --tags $(git rev-list --tags --max-count=1) >> $GITHUB_ENV
+          echo $GITHUB_ENV
           echo 'EOF' >> $GITHUB_ENV
 
       - name: Build kindly
