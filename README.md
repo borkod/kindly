@@ -7,7 +7,7 @@
 # Kindly
 
 [![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver&style=flat-square)](https://github.com/borkod/kindly/releases/latest)
-![Build Status](https://github.com/borkod/kindly/workflows/release/badge.svg)
+[![release](https://github.com/borkod/kindly/actions/workflows/release.yml/badge.svg?branch=v0.0.2)](https://github.com/borkod/kindly/actions/workflows/release.yml)
 [![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly?style=flat-square)](https://goreportcard.com/report/github.com/borkod/kindly)
 ![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
