@@ -19,6 +19,7 @@ package cmd
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 
@@ -54,7 +55,7 @@ Example:
 		}
 
 		for _, n := range s {
-			log.Println(n)
+			fmt.Println(n)
 		}
 	},
 }

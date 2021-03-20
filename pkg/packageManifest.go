@@ -19,6 +19,7 @@ package pkg
 
 type pkgManifest struct {
 	Name       string   `yaml:"name"`
+	Source     string   `yaml:"source"`
 	Date       string   `yaml:"date"`
 	Version    string   `yaml:"version"`
 	Bin        []string `yaml:"bin"`

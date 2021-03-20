@@ -11,19 +11,20 @@ import (
 type dlInfo struct {
 	Name    string
 	Version string
+	Source  string
 	URL     string
 	URLSHA  string
 	osArch  string
 }
 
-func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, KindlyStruct, error) {
+func (k Kindly) getValidYConfig(ctx context.Context, n string, f bool, u bool) (dlInfo, KindlyStruct, error) {
 	var err error
 	var yc KindlyStruct
 
 	// Pull out package version if provided
 	nVer := strings.SplitN(n, "@", 2)
 
-	dl := dlInfo{nVer[0], "", "", "", ""}
+	dl := dlInfo{nVer[0], "", "", "", "", ""}
 
 	if len(nVer) > 1 {
 		dl.Version = semver.Canonical(nVer[1])
@@ -32,15 +33,30 @@ func (k Kindly) getValidYConfig(ctx context.Context, n string) (dlInfo, KindlySt
 		}
 	}
 
-	// Download package yaml spec and initialize KindlyStruct struct
-	if yc, err = getYaml(ctx, k.cfg.Source+dl.Name+".yaml"); err != nil {
-		return dl, yc, err
+	if f {
+		dl.Source = dl.Name
+		// Read package yaml spec and initialize KindlyStruct struct
+		if yc, err = getYamlFile(dl.Source); err != nil {
+			return dl, yc, err
+		}
+	} else {
+		sourceURL := k.cfg.Source + dl.Name + ".yaml"
+		if u {
+			sourceURL = dl.Name
+		}
+		dl.Source = sourceURL
+		// Download package yaml spec and initialize KindlyStruct struct
+		if yc, err = getYamlURL(ctx, sourceURL); err != nil {
+			return dl, yc, err
+		}
 	}
 
 	// Check if package is available
 	if !(len(yc.Spec.Name) > 0) {
 		return dl, yc, errors.New("Unavailable Package: " + dl.Name)
 	}
+
+	dl.Name = yc.Spec.Name
 
 	// Check if requested version is higher value than the available version in the package
 	if len(dl.Version) > 0 {
