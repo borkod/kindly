@@ -19,7 +19,18 @@ import (
 )
 
 // Install function implements install command
-func (k Kindly) Install(ctx context.Context, p string) (err error) {
+func (k Kindly) Install(ctx context.Context, p string, f bool, u bool) (err error) {
+
+	if f && u {
+		return errors.New("Only one of 'file' or 'url' flags can be set.")
+	}
+
+	if u {
+		if !isValidUrl(p) {
+			return errors.New("Invalid URL.")
+		}
+
+	}
 
 	// Create a temporary directory where files will be downloaded
 	tmpDir, err := ioutil.TempDir("", "kindly_")
@@ -35,7 +46,7 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 	var yc KindlyStruct
 	var dl dlInfo
 
-	if dl, yc, err = k.getValidYConfig(ctx, p); err != nil {
+	if dl, yc, err = k.getValidYConfig(ctx, p, f, u); err != nil {
 		return err
 	}
 
@@ -65,9 +76,10 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 	}
 
 	var l pkgManifest
-	l.Name = p
+	l.Name = dl.Name
 	l.Date = time.Now().Format("2006-01-02 15:04:05")
 	l.Version = dl.Version
+	l.Source = dl.Source
 
 	// Copy all extracted bin files from tmpDir into OutBinDir
 	for _, n := range yc.Spec.Bin {
@@ -82,29 +94,38 @@ func (k Kindly) Install(ctx context.Context, p string) (err error) {
 		if k.cfg.OS == "windows" {
 			n = n + ".exe"
 		}
-		if err = copyFile(k.cfg.OutBinDir, tmpDir, n); err != nil {
+		cpBool := false
+		if cpBool, err = copyFile(k.cfg.OutBinDir, tmpDir, n); err != nil {
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
-		l.Bin = append(l.Bin, n)
+		if cpBool {
+			l.Bin = append(l.Bin, n)
+		}
 	}
 
 	// Copy all extracted completion files from tmpDir into OutCompletionDir
 	for _, n := range yc.Spec.Completion[k.cfg.Completion] {
-		if err = copyFile(k.cfg.OutCompletionDir, tmpDir, n); err != nil {
+		cpBool := false
+		if cpBool, err = copyFile(k.cfg.OutCompletionDir, tmpDir, n); err != nil {
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
-		l.Completion = append(l.Completion, n)
+		if cpBool {
+			l.Completion = append(l.Completion, n)
+		}
 	}
 
 	// Copy all extracted man pages files from tmpDir into OutManDir
 	for _, n := range yc.Spec.Man {
-		if err = copyFile(k.cfg.OutManDir, tmpDir, n); err != nil {
+		cpBool := false
+		if cpBool, err = copyFile(k.cfg.OutManDir, tmpDir, n); err != nil {
 			k.logger.Println("ERROR")
 			k.logger.Println(err)
 		}
-		l.Man = append(l.Man, n)
+		if cpBool {
+			l.Man = append(l.Man, n)
+		}
 	}
 
 	// Write the package manifest file

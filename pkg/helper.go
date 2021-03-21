@@ -28,6 +28,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	"net/url"
 	"os"
 	"os/user"
 	"path/filepath"
@@ -38,7 +39,7 @@ import (
 )
 
 // GetYaml downloads the yaml and configures the KindlyStruct struct
-func getYaml(ctx context.Context, arg string) (KindlyStruct, error) {
+func getYamlURL(ctx context.Context, arg string) (KindlyStruct, error) {
 	const ConnectMaxWaitTime = 1 * time.Second
 	const RequestMaxWaitTime = 5 * time.Second
 
@@ -73,6 +74,23 @@ func getYaml(ctx context.Context, arg string) (KindlyStruct, error) {
 
 	if err != nil {
 		//fmt.Printf("Error parsing YAML file: %s\n", arg)
+		return yc, err
+	}
+
+	return yc, nil
+}
+
+// GetYaml downloads the yaml and configures the KindlyStruct struct
+func getYamlFile(arg string) (KindlyStruct, error) {
+
+	var yc KindlyStruct
+
+	yamlFile, err := ioutil.ReadFile(expandPath(arg))
+	if err != nil {
+		return yc, err
+	}
+	err = yaml.Unmarshal(yamlFile, &yc)
+	if err != nil {
 		return yc, err
 	}
 
@@ -160,11 +178,12 @@ func decompress(dst string, path string) error {
 }
 
 // copyFile copies file to dst from src
-func copyFile(dst string, src string, binName string) error {
+func copyFile(dst string, src string, binName string) (bool, error) {
 
 	//if cfg.Verbose {
 	//	k.logger.Println("Copying file:\t\t", binName)
 	//}
+	cbBool := false
 
 	err := filepath.Walk(src, func(path string, info os.FileInfo, err error) error {
 		if info.Name() == binName && !info.IsDir() {
@@ -202,14 +221,15 @@ func copyFile(dst string, src string, binName string) error {
 			if err != nil {
 				return err
 			}
+			cbBool = true
 		}
 
 		return nil
 	})
 	if err != nil {
-		return err
+		return cbBool, err
 	}
-	return nil
+	return cbBool, nil
 }
 
 func writeManifest(src pkgManifest, dst string) error {
@@ -313,4 +333,19 @@ func expandPath(path string) string {
 		return path
 	}
 	return abspath
+}
+
+// isValidUrl tests a string to determine if it is a well-structured url or not.
+func isValidUrl(toTest string) bool {
+	_, err := url.ParseRequestURI(toTest)
+	if err != nil {
+		return false
+	}
+
+	u, err := url.Parse(toTest)
+	if err != nil || u.Scheme == "" || u.Host == "" {
+		return false
+	}
+
+	return true
 }

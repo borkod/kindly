@@ -24,15 +24,8 @@ import (
 
 	kindly "github.com/borkod/kindly/pkg"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
-
-type dlInfo struct {
-	Name    string
-	Version string
-	URL     string
-	URLSHA  string
-	osArch  string
-}
 
 // installCmd represents the install command
 var installCmd = &cobra.Command{
@@ -66,7 +59,8 @@ Example:
 			}
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			if err := k.Install(ctx, n); err != nil {
+
+			if err := k.Install(ctx, n, viper.GetBool("file"), viper.GetBool("url")); err != nil {
 				log.Print(string("\u001b[31m"), err, string("\u001b[0m"), "\n")
 				continue
 			}
@@ -89,5 +83,8 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// installCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	installCmd.Flags().BoolP("file", "f", false, "Package manifest is a local file.")
+	viper.BindPFlag("file", installCmd.Flags().Lookup("file"))
+	installCmd.Flags().BoolP("url", "u", false, "Package manifest is a URL.")
+	viper.BindPFlag("url", installCmd.Flags().Lookup("url"))
 }
