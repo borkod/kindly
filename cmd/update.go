@@ -13,12 +13,12 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 */
-
 // Package cmd is for implementing commands
 package cmd
 
 import (
 	"context"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -29,29 +29,30 @@ import (
 	"github.com/spf13/viper"
 )
 
-// removeCmd represents the remove command
-var removeCmd = &cobra.Command{
-	Use:   "remove [name of package]",
-	Short: "Removes previously installed package(s).",
-	Long: `Use to remove a previously installed package.
+// updateCmd represents the update command
+var updateCmd = &cobra.Command{
+	Use:   "update [name of package]",
+	Short: "Updates previously installed package(s)",
+	Long: `Use to update a previously installed package.
 
-Optionally, use the --all flag to remove all installed packages.
+Optionally, use the --all flag to update all installed packages.
 If set, all other arguments are ignored.
 
 Examples:
-	kindly remove gh-cli
-	kindly remove -a`,
+	kindly update gh-cli
+	kindly update -a`,
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Println("update called")
 		var k kindly.Kindly
 		k.SetConfig(cfg)
 		k.SetLogger(log.New(os.Stdout, "", log.Ltime))
 		log.SetFlags(log.Ltime)
 
-		if !viper.GetBool("removeall") && len(args) == 0 {
+		if !viper.GetBool("updateall") && len(args) == 0 {
 			log.Fatalln("Must provide a package name as an argument.")
 		}
 
-		if viper.GetBool("removeall") {
+		if viper.GetBool("updateall") {
 			if len(args) > 0 {
 				log.Println("Remove All flag is set. Ignoring all other arguments.")
 			}
@@ -72,35 +73,35 @@ Examples:
 		for _, n := range args {
 
 			if cfg.Verbose {
-				log.Println("Removing package: ", n)
+				log.Println("Updating package: ", n)
 			}
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			if err := k.Remove(ctx, n); err != nil {
+			if err := k.Update(ctx, n); err != nil {
 				log.Print(string("\u001b[31m"), err, string("\u001b[0m"), "\n")
 				continue
 			}
 		}
 
 		if cfg.Verbose {
-			log.Println("Removing complete.")
+			log.Println("Update complete.")
 		}
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(removeCmd)
+	rootCmd.AddCommand(updateCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// removeCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// updateCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	removeCmd.Flags().BoolP("all", "a", false, "Remove all installed packages. If this flag is set all other arguments are ignored.")
-	if err := viper.BindPFlag("removeall", removeCmd.Flags().Lookup("all")); err != nil {
+	updateCmd.Flags().BoolP("all", "a", false, "Update all installed packages. If this flag is set all other arguments are ignored.")
+	if err := viper.BindPFlag("updateall", updateCmd.Flags().Lookup("all")); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
