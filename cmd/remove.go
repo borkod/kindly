@@ -100,5 +100,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	removeCmd.Flags().BoolP("all", "a", false, "Removed all installed packages. If this flag is set all other arguments are ignored.")
-	viper.BindPFlag("all", removeCmd.Flags().Lookup("all"))
+	if err := viper.BindPFlag("all", removeCmd.Flags().Lookup("all")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 }
