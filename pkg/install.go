@@ -158,6 +158,9 @@ func (k Kindly) processFile(ctx context.Context, dl dlInfo, tmpDir string) (stri
 		},
 	}
 
+	ctx, cancel := context.WithTimeout(ctx, RequestMaxWaitTime)
+	defer cancel()
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, dl.URL, nil)
 	if err != nil {
 		return "", err

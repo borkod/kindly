@@ -84,7 +84,13 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	installCmd.Flags().BoolP("file", "f", false, "Package manifest is a local file.")
-	viper.BindPFlag("file", installCmd.Flags().Lookup("file"))
+	if err := viper.BindPFlag("file", installCmd.Flags().Lookup("file")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 	installCmd.Flags().BoolP("url", "u", false, "Package manifest is a URL.")
-	viper.BindPFlag("url", installCmd.Flags().Lookup("url"))
+	if err := viper.BindPFlag("url", installCmd.Flags().Lookup("url")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 }

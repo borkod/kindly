@@ -65,23 +65,47 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kindly/.kindly.yaml)")
 	rootCmd.PersistentFlags().BoolVarP(&cfg.Verbose, "verbose", "v", false, "Verbose output")
 	rootCmd.PersistentFlags().StringVar(&cfg.OutBinDir, "OutBinDir", "", "Default binary file output directory (default is $HOME/.kindly/bin/)")
-	viper.BindPFlag("OutBinDir", rootCmd.PersistentFlags().Lookup("OutBinDir"))
+	if err := viper.BindPFlag("OutBinDir", rootCmd.PersistentFlags().Lookup("OutBinDir")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	rootCmd.PersistentFlags().StringVar(&cfg.ManifestDir, "ManifestDir", "", "Default kindly manifests directory (default is $HOME/.kindly/manifests/)")
-	viper.BindPFlag("ManifestDir", rootCmd.PersistentFlags().Lookup("ManifestDir"))
+	if err := viper.BindPFlag("ManifestDir", rootCmd.PersistentFlags().Lookup("ManifestDir")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	rootCmd.PersistentFlags().StringVar(&cfg.OutCompletionDir, "OutCompletionDir", "", "Default completions file output directory (default is $HOME/.kindly/completion/)")
-	viper.BindPFlag("OutCompletionDir", rootCmd.PersistentFlags().Lookup("OutCompletionDir"))
+	if err := viper.BindPFlag("OutCompletionDir", rootCmd.PersistentFlags().Lookup("OutCompletionDir")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	rootCmd.PersistentFlags().StringVar(&cfg.OutManDir, "OutManDir", "", "Default man pages output directory (default is $HOME/.kindly/man/)")
-	viper.BindPFlag("OutManDir", rootCmd.PersistentFlags().Lookup("OutManDir"))
+	if err := viper.BindPFlag("OutManDir", rootCmd.PersistentFlags().Lookup("OutManDir")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	//rootCmd.PersistentFlags().BoolVarP(&cfg.UniqueDir, "unique-directory", "", false, "write files into unique directory (default is false)")
 	//viper.BindPFlag("unique-directory", rootCmd.PersistentFlags().Lookup("unique-directory"))
 	rootCmd.PersistentFlags().StringVar(&cfg.Completion, "completion", "bash", "Completion shell setting")
-	viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion"))
+	if err := viper.BindPFlag("completion", rootCmd.PersistentFlags().Lookup("completion")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://raw.githubusercontent.com/borkod/kindly-specs/main/specs/", "Source of package spec files")
-	viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source"))
+	if err := viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	rootCmd.PersistentFlags().StringVar(&cfg.OS, "OS", "", "Operating System (default is current OS)")
-	viper.BindPFlag("OS", rootCmd.PersistentFlags().Lookup("OS"))
+	if err := viper.BindPFlag("OS", rootCmd.PersistentFlags().Lookup("OS")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 	rootCmd.PersistentFlags().StringVar(&cfg.Arch, "Arch", "", "Architecture (default is current architecture)")
-	viper.BindPFlag("Arch", rootCmd.PersistentFlags().Lookup("Arch"))
+	if err := viper.BindPFlag("Arch", rootCmd.PersistentFlags().Lookup("Arch")); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
 }
 
