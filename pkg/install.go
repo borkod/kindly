@@ -25,6 +25,13 @@ func (k Kindly) Install(ctx context.Context, p string, f bool, u bool) (err erro
 		return errors.New("Only one of 'file' or 'url' flags can be set.")
 	}
 
+	if u {
+		if !isValidUrl(p) {
+			return errors.New("Invalid URL.")
+		}
+
+	}
+
 	// Create a temporary directory where files will be downloaded
 	tmpDir, err := ioutil.TempDir("", "kindly_")
 	if err != nil {

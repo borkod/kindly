@@ -38,7 +38,7 @@ var cfg config.Config
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:     "kindly <command>",
-	Version: "0.0.2-rc1",
+	Version: "0.0.3",
 	Short:   "Kindly installs Linux binaries.",
 	Long: `Kindly is a free and open-source software package management system that simplifies the installation of software on Linux.
 
