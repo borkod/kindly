@@ -54,6 +54,9 @@ func getYamlURL(ctx context.Context, arg string) (KindlyStruct, error) {
 	var yc KindlyStruct
 	buf := new(bytes.Buffer)
 
+	ctx, cancel := context.WithTimeout(ctx, RequestMaxWaitTime)
+	defer cancel()
+
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, arg, nil)
 	if err != nil {
 		return yc, err
@@ -70,7 +73,7 @@ func getYamlURL(ctx context.Context, arg string) (KindlyStruct, error) {
 		return yc, err
 	}
 
-	yaml.Unmarshal(buf.Bytes(), &yc)
+	err = yaml.Unmarshal(buf.Bytes(), &yc)
 
 	if err != nil {
 		//fmt.Printf("Error parsing YAML file: %s\n", arg)
@@ -284,7 +287,9 @@ func unzip(src string, dest string) ([]string, error) {
 
 		if f.FileInfo().IsDir() {
 			// Make Folder
-			os.MkdirAll(fpath, os.ModePerm)
+			if err = os.MkdirAll(fpath, os.ModePerm); err != nil {
+				return filenames, err
+			}
 			continue
 		}
 

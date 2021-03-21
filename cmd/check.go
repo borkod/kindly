@@ -91,5 +91,8 @@ func init() {
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
 	checkCmd.Flags().BoolP("output", "o", false, "Output YAML spec file.")
-	viper.BindPFlag("output", checkCmd.Flags().Lookup("output"))
+	if err := viper.BindPFlag("output", checkCmd.Flags().Lookup("output")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 }
