@@ -25,6 +25,7 @@ import (
 
 	kindly "github.com/borkod/kindly/pkg"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
 
 // listCmd represents the list command
@@ -48,7 +49,7 @@ Example:
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		s, err := k.ListPackages(ctx)
+		s, err := k.ListPackages(ctx, viper.GetBool("installed"))
 		if err != nil {
 			log.Println(err)
 
@@ -71,5 +72,9 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// listCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	listCmd.Flags().BoolP("installed", "i", false, "List locally installed packages.")
+	if err := viper.BindPFlag("installed", listCmd.Flags().Lookup("installed")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
 }
