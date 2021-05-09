@@ -49,7 +49,7 @@ Example:
 		ctx, cancel := context.WithCancel(context.Background())
 		defer cancel()
 
-		s, err := k.ListPackages(ctx, viper.GetBool("installed"))
+		s, err := k.ListPackages(ctx, viper.GetString("source"), viper.GetBool("installed"))
 		if err != nil {
 			log.Println(err)
 
@@ -74,6 +74,11 @@ func init() {
 	// is called directly, e.g.:
 	listCmd.Flags().BoolP("installed", "i", false, "List locally installed packages.")
 	if err := viper.BindPFlag("installed", listCmd.Flags().Lookup("installed")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+	listCmd.Flags().StringP("source", "s", "", "Package source name.")
+	if err := viper.BindPFlag("source", listCmd.Flags().Lookup("source")); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}

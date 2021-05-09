@@ -91,11 +91,12 @@ func init() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	rootCmd.PersistentFlags().StringVar(&cfg.Source, "Source", "https://raw.githubusercontent.com/borkod/kindly-specs/main/specs/", "Source of package spec files")
+	/*rootCmd.PersistentFlags().StringVar(&cfg.Sources["default"], "Source", "https://raw.githubusercontent.com/borkod/kindly-specs/main/specs/", "Source of package spec files")
 	if err := viper.BindPFlag("Source", rootCmd.PersistentFlags().Lookup("Source")); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
+	*/
 	rootCmd.PersistentFlags().StringVar(&cfg.OS, "OS", "", "Operating System (default is current OS)")
 	if err := viper.BindPFlag("OS", rootCmd.PersistentFlags().Lookup("OS")); err != nil {
 		fmt.Println(err)
@@ -119,6 +120,8 @@ func initConfig() {
 	}
 
 	// Initialize default values
+	cfg.Sources = make(map[string]config.Source)
+	cfg.Sources["default"] = config.Source{Name: "default", Type: "github", Owner: "borkod", Repo: "kindly-specs", Path: "specs", DirectoryPath: ""}
 	cfg.ManifestDir = filepath.Join(home, ".kindly", "manifests")
 	cfg.OutBinDir = filepath.Join(home, ".kindly", "bin")
 	cfg.OutCompletionDir = filepath.Join(home, ".kindly", "completion")

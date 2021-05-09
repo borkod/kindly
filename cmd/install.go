@@ -60,7 +60,7 @@ Example:
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
 
-			if err := k.Install(ctx, n, viper.GetBool("file"), viper.GetBool("url")); err != nil {
+			if err := k.Install(ctx, viper.GetString("source"), n, viper.GetBool("file"), viper.GetBool("url")); err != nil {
 				log.Print(string("\u001b[31m"), err, string("\u001b[0m"), "\n")
 				continue
 			}
@@ -90,6 +90,11 @@ func init() {
 	}
 	installCmd.Flags().BoolP("url", "u", false, "Package manifest is a URL.")
 	if err := viper.BindPFlag("url", installCmd.Flags().Lookup("url")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+	installCmd.Flags().StringP("source", "s", "default", "Package source name.")
+	if err := viper.BindPFlag("source", installCmd.Flags().Lookup("source")); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}

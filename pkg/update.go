@@ -24,13 +24,13 @@ func (k Kindly) Update(ctx context.Context, n string) (err error) {
 		return err
 	}
 
-	_, yc, err := k.getValidYConfig(ctx, n, false, false)
+	_, yc, err := k.getValidYConfig(ctx, l.Source, n, false, false)
 	if err != nil {
 		return err
 	}
 
 	if semver.Compare(l.Version, yc.Spec.Version) < 0 {
-		if err := k.Install(ctx, n, false, false); err != nil {
+		if err := k.Install(ctx, l.Source, n, false, false); err != nil {
 			return err
 		}
 	}

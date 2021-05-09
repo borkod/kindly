@@ -29,6 +29,9 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
+var output bool
+var source string
+
 // checkCmd represents the check command
 var checkCmd = &cobra.Command{
 	Use:   "check [name of package]",
@@ -55,7 +58,7 @@ Examples:
 		for _, n := range args {
 			ctx, cancel := context.WithCancel(context.Background())
 			defer cancel()
-			yc, err := k.Check(ctx, n)
+			yc, err := k.Check(ctx, viper.GetString("source"), n)
 			if err != nil {
 				log.Println("Package: ", n, string("\u001b[31m"), err, string("\u001b[0m"))
 				continue
@@ -81,7 +84,8 @@ Examples:
 
 func init() {
 	rootCmd.AddCommand(checkCmd)
-
+	var output2 bool
+	var source2 string
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
@@ -90,9 +94,19 @@ func init() {
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	checkCmd.Flags().BoolP("output", "o", false, "Output YAML spec file.")
+	fmt.Println(viper.GetString("source2"))
+	checkCmd.Flags().BoolVarP(&output2, "output", "o", false, "Output YAML spec file.")
 	if err := viper.BindPFlag("output", checkCmd.Flags().Lookup("output")); err != nil {
 		log.Println(err)
 		os.Exit(1)
 	}
+	fmt.Println(checkCmd.Flags().Lookup("source2"))
+	checkCmd.Flags().StringVarP(&source2, "source2", "a", "test", "Package source name.")
+	fmt.Println(viper.GetString("source2"))
+	if err := viper.BindPFlag("source2", checkCmd.Flags().Lookup("source2")); err != nil {
+		log.Println(err)
+		os.Exit(1)
+	}
+	fmt.Println(checkCmd.Flags().Lookup("source2"))
+	fmt.Println(viper.GetString("source2"))
 }

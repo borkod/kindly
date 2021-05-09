@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/google/go-github/github"
 	"golang.org/x/mod/semver"
 )
 
@@ -17,7 +18,11 @@ type dlInfo struct {
 	osArch  string
 }
 
-func (k Kindly) getValidYConfig(ctx context.Context, n string, f bool, u bool) (dlInfo, KindlyStruct, error) {
+// s = string
+// n = name of package
+// f = file
+// u = url
+func (k Kindly) getValidYConfig(ctx context.Context, key string, n string, f bool, u bool) (dlInfo, KindlyStruct, error) {
 	var err error
 	var yc KindlyStruct
 
@@ -40,7 +45,12 @@ func (k Kindly) getValidYConfig(ctx context.Context, n string, f bool, u bool) (
 			return dl, yc, err
 		}
 	} else {
-		sourceURL := k.cfg.Source + dl.Name + ".yaml"
+		client := github.NewClient(nil)
+		fc, _, _, err := client.Repositories.GetContents(ctx, k.cfg.Sources[key].Owner, k.cfg.Sources[key].Repo, k.cfg.Sources[key].Path+"/"+dl.Name+".yaml", nil)
+		if err != nil {
+			return dl, yc, err
+		}
+		sourceURL := *(fc.DownloadURL)
 		if u {
 			sourceURL = dl.Name
 		}

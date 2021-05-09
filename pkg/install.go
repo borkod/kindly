@@ -19,7 +19,7 @@ import (
 )
 
 // Install function implements install command
-func (k Kindly) Install(ctx context.Context, p string, f bool, u bool) (err error) {
+func (k Kindly) Install(ctx context.Context, s string, p string, f bool, u bool) (err error) {
 
 	if f && u {
 		return errors.New("Only one of 'file' or 'url' flags can be set.")
@@ -46,7 +46,7 @@ func (k Kindly) Install(ctx context.Context, p string, f bool, u bool) (err erro
 	var yc KindlyStruct
 	var dl dlInfo
 
-	if dl, yc, err = k.getValidYConfig(ctx, p, f, u); err != nil {
+	if dl, yc, err = k.getValidYConfig(ctx, s, p, f, u); err != nil {
 		return err
 	}
 
