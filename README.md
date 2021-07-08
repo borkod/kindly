@@ -12,6 +12,7 @@
 ![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
 [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
 [![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square)](https://www.buymeacoffee.com/borkod)
+[![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/organization/repository)
 
 [Kindly](https://kindly.sh/) is a free and open-source software package management CLI tool that simplifies the installation of software.
 
