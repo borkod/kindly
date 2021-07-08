@@ -6,12 +6,12 @@
 
 # Kindly
 
-[![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver&style=flat-square)](https://github.com/borkod/kindly/releases/latest)
+[![Release](https://img.shields.io/github/v/release/borkod/kindly?sort=semver)](https://github.com/borkod/kindly/releases/latest)
 [![build](https://github.com/borkod/kindly/actions/workflows/build.yml/badge.svg)](https://github.com/borkod/kindly/actions/workflows/build.yml)
-[![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly?style=flat-square)](https://goreportcard.com/report/github.com/borkod/kindly)
-![GitHub](https://img.shields.io/github/license/borkod/kindly?style=flat-square)
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg?style=flat-square)](https://www.paypal.me/borkodj)
-[![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square)](https://www.buymeacoffee.com/borkod)
+[![Go Report Card](https://goreportcard.com/badge/github.com/borkod/kindly)](https://goreportcard.com/report/github.com/borkod/kindly)
+![GitHub](https://img.shields.io/github/license/borkod/kindly)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/borkodj)
+[![Buy me a coffee](https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg)](https://www.buymeacoffee.com/borkod)
 [![Open in Visual Studio Code](https://open.vscode.dev/badges/open-in-vscode.svg)](https://open.vscode.dev/organization/repository)
 
 [Kindly](https://kindly.sh/) is a free and open-source software package management CLI tool that simplifies the installation of software.
